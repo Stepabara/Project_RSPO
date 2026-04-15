@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>ARM SYSTEM PRO | Главная</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000000;
+      font-family: 'Montserrat', Helvetica, sans-serif;
+      color: #ffffff;
+    }
+
+    .header {
+      background: rgba(0, 0, 0, 0.95);
+      padding: 15px 5%;
+      border-bottom: 1px solid #333;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1280px;
+      margin: 0 auto;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo img {
+      height: 32px;
+      width: auto;
+    }
+    .logo span {
+      font-size: 20px;
+      font-weight: 900;
+      color: white;
+    }
+    .nav-buttons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #666;
+      color: white;
+      padding: 8px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 14px;
+    }
+    .btn-outline:hover {
+      border-color: #ccc;
+      background: rgba(255,255,255,0.1);
+    }
+    .btn-white {
+      background: white;
+      color: black;
+      padding: 8px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+    .btn-white:hover {
+      background: #ccc;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 500px;
+      height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background-size: cover;
+      background-position: center;
+      background-image: url('img/img1.png');
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 20px;
+    }
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 900;
+      margin-bottom: 16px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    .hero p {
+      font-size: 18px;
+      color: #ccc;
+      margin-bottom: 30px;
+    }
+    .btn-hero {
+      background: white;
+      color: black;
+      padding: 14px 42px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      transition: 0.3s;
+    }
+    .btn-hero:hover {
+      background: #ccc;
+      transform: translateY(-2px);
+    }
+
+    .features {
+      padding: 60px 5%;
+      background: linear-gradient(180deg, #000 0%, #111 100%);
+    }
+    .section-title {
+      font-size: 36px;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .features-grid {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .feature-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 32px;
+      width: 300px;
+      text-align: center;
+      transition: 0.3s;
+    }
+    .feature-card:hover {
+      border-color: #888;
+      transform: translateY(-5px);
+    }
+    .feature-card h3 {
+      font-size: 22px;
+      margin-bottom: 16px;
+    }
+    .feature-card p {
+      color: #999;
+      line-height: 1.5;
+    }
+
+    .tournaments {
+      padding: 60px 5%;
+    }
+    .tournaments-subtitle {
+      text-align: center;
+      color: #999;
+      margin-bottom: 48px;
+    }
+    .tournaments-grid {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .tournament-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      overflow: hidden;
+      width: 320px;
+      transition: 0.3s;
+    }
+    .tournament-card:hover {
+      border-color: #888;
+      transform: translateY(-5px);
+    }
+    .tournament-img {
+      height: 180px;
+      background: #1a1a1a;
+      position: relative;
+    }
+    .tournament-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #16a34a;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .tournament-content {
+      padding: 20px;
+    }
+    .tournament-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+    .tournament-info {
+      color: #999;
+      font-size: 14px;
+      margin: 8px 0;
+    }
+    .tournament-price {
+      color: #4ade80;
+      font-weight: bold;
+      margin: 12px 0;
+    }
+    .btn-details {
+      background: white;
+      color: black;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      width: 100%;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: 0.3s;
+    }
+    .btn-details:hover {
+      background: #ccc;
+    }
+
+    .organizer-section {
+      position: relative;
+      background-image: url('img/img2.png');
+      background-size: cover;
+      background-position: center;
+      padding: 80px 5%;
+      text-align: center;
+    }
+    .organizer-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+    }
+    .organizer-content {
+      position: relative;
+      z-index: 2;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .organizer-content h2 {
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+    .organizer-content p {
+      font-size: 18px;
+      color: #ccc;
+      margin-bottom: 30px;
+    }
+    .btn-organizer {
+      background: white;
+      color: black;
+      padding: 14px 42px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      transition: 0.3s;
+      display: inline-block;
+    }
+    .btn-organizer:hover {
+      background: #ccc;
+    }
+
+    .footer {
+      background: #000;
+      border-top: 1px solid #333;
+      padding: 48px 5%;
+    }
+    .footer-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 40px;
+    }
+    .footer-logo {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .footer-desc {
+      color: #999;
+      font-size: 14px;
+    }
+    .footer-title {
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+    .footer-links {
+      list-style: none;
+    }
+    .footer-links li {
+      color: #999;
+      margin: 8px 0;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .footer-links li:hover {
+      color: #ccc;
+    }
+    .footer-copyright {
+      text-align: center;
+      padding-top: 32px;
+      margin-top: 32px;
+      border-top: 1px solid #333;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      backdrop-filter: blur(4px);
+    }
+    .modal-content {
+      background: #1E1E1E;
+      padding: 32px;
+      border-radius: 24px;
+      width: 500px;
+      max-width: 90%;
+      border: 1px solid #444;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .modal-header h2 {
+      color: #ccc;
+      font-size: 24px;
+    }
+    .close-modal {
+      font-size: 28px;
+      cursor: pointer;
+      color: #888;
+    }
+    .close-modal:hover {
+      color: #fff;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #888;
+      font-size: 14px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      background: #0F0F0F;
+      border: 1px solid #333;
+      color: white;
+      border-radius: 8px;
+      font-family: inherit;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .modal-actions button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-save {
+      background: #666;
+      color: white;
+    }
+    .btn-save:hover {
+      background: #888;
+    }
+    .btn-cancel {
+      background: #333;
+      color: white;
+    }
+    .btn-cancel:hover {
+      background: #555;
+    }
+    .modal-footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #888;
+    }
+    .modal-footer a {
+      color: #ccc;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .modal-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 32px; }
+      .hero p { font-size: 16px; }
+      .section-title { font-size: 28px; }
+      .features-grid { flex-direction: column; align-items: center; }
+      .tournaments-grid { flex-direction: column; align-items: center; }
+      .form-row { grid-template-columns: 1fr; }
+      .modal-content { padding: 20px; }
+      .organizer-content h2 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="logo">
+        <img src="img/img_logo.png" alt="logo" onerror="this.style.display='none'">
+        <span>ARM SYSTEM PRO</span>
+      </div>
+      <div class="nav-buttons">
+        <button class="btn-outline" id="loginBtn">Вход</button>
+        <button class="btn-white" id="registerBtn">Регистрация</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-content">
+      <h1>ДОСТИГАЙ НОВЫХ ВЫСОТ</h1>
+      <p>Профессиональная система управления турнирами по армрестлингу</p>
+      <button class="btn-hero" id="joinBtn">Присоединиться</button>
+    </div>
+  </div>
+
+  <div class="features">
+    <h2 class="section-title">Возможности</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>🏆 Участие в турнирах</h3>
+        <p>Регистрируйся на соревнования любого уровня — от локальных чемпионатов до международных турниров</p>
+      </div>
+      <div class="feature-card">
+        <h3>📊 Рейтинг и статистика</h3>
+        <p>Отслеживай свои победы, анализируй прогресс и следи за своим местом в общем рейтинге</p>
+      </div>
+      <div class="feature-card">
+        <h3>🛠 Организация турниров</h3>
+        <p>Создавай свои соревнования, управляй участниками и проводи турниры на профессиональном уровне</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tournaments">
+    <h2 class="section-title">Активные турниры</h2>
+    <div class="tournaments-subtitle">Присоединяйся к соревнованиям прямо сейчас</div>
+    <div class="tournaments-grid" id="tournamentsContainer">
+      <div class="loading">Загрузка турниров...</div>
+    </div>
+  </div>
+
+  <div class="organizer-section">
+    <div class="organizer-content">
+      <h2>Как стать организатором</h2>
+      <p>Хотите проводить свои турниры? Подайте заявку на роль организатора и получите доступ к профессиональным инструментам управления соревнованиями</p>
+      <button class="btn-organizer" id="organizerApplyBtn">Подать заявку</button>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div>
+        <div class="footer-logo">ARM SYSTEM PRO</div>
+        <p class="footer-desc">Профессиональная платформа для управления турнирами по армрестлингу</p>
+      </div>
+      <div>
+        <div class="footer-title">Информация</div>
+        <ul class="footer-links">
+          <li>О проекте</li>
+          <li>Правила</li>
+          <li>Контакты</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-copyright">© 2024 ARM SYSTEM PRO. Все права защищены.</div>
+  </footer>
+
+  <!-- Модальное окно ВХОДА -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>🔐 Вход</h2>
+        <span class="close-modal" onclick="closeLoginModal()">&times;</span>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="example@mail.com">
+      </div>
+      <div class="form-group">
+        <label>Пароль</label>
+        <input type="password" id="loginPassword" placeholder="••••••••">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-save" onclick="login()">Войти</button>
+        <button class="btn-cancel" onclick="closeLoginModal()">Отмена</button>
+      </div>
+      <div class="modal-footer">
+        <a onclick="switchToRegister()">Нет аккаунта? Зарегистрироваться</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно РЕГИСТРАЦИИ -->
+  <div id="registerModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📝 Регистрация</h2>
+        <span class="close-modal" onclick="closeRegisterModal()">&times;</span>
+      </div>
+      <div class="form-group">
+        <label>ФИО *</label>
+        <input type="text" id="regFio" placeholder="Иванов Иван Иванович">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" id="regEmail" placeholder="example@mail.com">
+        </div>
+        <div class="form-group">
+          <label>Телефон</label>
+          <input type="tel" id="regPhone" placeholder="+375(29)123-45-67">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Дата рождения *</label>
+          <input type="date" id="regBirth">
+        </div>
+        <div class="form-group">
+          <label>Вес (кг) *</label>
+          <input type="number" id="regWeight" step="0.1" placeholder="75.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Разряд</label>
+          <select id="regRank">
+            <option value="Б/Р">Без разряда</option>
+            <option value="3 разряд">3 разряд</option>
+            <option value="2 разряд">2 разряд</option>
+            <option value="1 разряд">1 разряд</option>
+            <option value="КМС">КМС</option>
+            <option value="МС">МС</option>
+            <option value="МСМК">МСМК</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Пол</label>
+          <select id="regGender">
+            <option value="Мужской">Мужской</option>
+            <option value="Женский">Женский</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Пароль *</label>
+          <input type="password" id="regPassword" placeholder="Минимум 4 символа">
+        </div>
+        <div class="form-group">
+          <label>Подтверждение пароля *</label>
+          <input type="password" id="regPasswordConfirm" placeholder="Повторите пароль">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-save" onclick="register()">Зарегистрироваться</button>
+        <button class="btn-cancel" onclick="closeRegisterModal()">Отмена</button>
+      </div>
+      <div class="modal-footer">
+        <a onclick="switchToLogin()">Уже есть аккаунт? Войти</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модальное окно ЗАЯВКИ НА ОРГАНИЗАТОРА -->
+  <div id="organizerRequestModal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2>🤝 Стать организатором</h2>
+        <span class="close-modal" onclick="closeOrganizerModal()">&times;</span>
+      </div>
+      <div class="form-group">
+        <label>ФИО *</label>
+        <input type="text" id="orgFio" placeholder="Иванов Иван Иванович">
+      </div>
+      <div class="form-group">
+        <label>Email *</label>
+        <input type="email" id="orgEmail" placeholder="example@mail.com">
+      </div>
+      <div class="form-group">
+        <label>Телефон *</label>
+        <input type="tel" id="orgPhone" placeholder="+375(29)123-45-67">
+      </div>
+      <div class="form-group">
+        <label>Пароль *</label>
+        <input type="password" id="orgPassword" placeholder="Придумайте пароль">
+      </div>
+      <div class="form-group">
+        <label>Опыт организации (необязательно)</label>
+        <textarea id="orgMessage" rows="3" placeholder="Расскажите о себе..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-save" onclick="sendOrganizerRequest()">Отправить заявку</button>
+        <button class="btn-cancel" onclick="closeOrganizerModal()">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== ПЕРЕМЕННЫЕ =====
+    let user = JSON.parse(localStorage.getItem('user'));
+
+    // Если пользователь уже авторизован — редирект на личный кабинет
+    if (user && (user.Role === 'User' || user.Role === 'Admin' || user.Role === 'Organizer')) {
+      if (user.Role === 'Admin') window.location.href = '/admin.html';
+      else if (user.Role === 'Organizer') window.location.href = '/organizer.html';
+      else if (user.Role === 'User') window.location.href = '/atlet.html';
+    }
+
+    // ===== МОДАЛЬНЫЕ ОКНА =====
+    function openLoginModal() {
+      document.getElementById('loginModal').style.display = 'flex';
+    }
+    function closeLoginModal() {
+      document.getElementById('loginModal').style.display = 'none';
+    }
+    function openRegisterModal() {
+      document.getElementById('registerModal').style.display = 'flex';
+    }
+    function closeRegisterModal() {
+      document.getElementById('registerModal').style.display = 'none';
+    }
+    function openOrganizerModal() {
+      document.getElementById('organizerRequestModal').style.display = 'flex';
+    }
+    function closeOrganizerModal() {
+      document.getElementById('organizerRequestModal').style.display = 'none';
+    }
+
+    // ===== ПЕРЕКЛЮЧЕНИЕ МЕЖДУ МОДАЛКАМИ =====
+    function switchToLogin() {
+      closeRegisterModal();
+      openLoginModal();
+    }
+    function switchToRegister() {
+      closeLoginModal();
+      openRegisterModal();
+    }
+
+    // ===== ВХОД =====
+    async function login() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      if (!email || !password) {
+        alert('Заполните все поля');
+        return;
+      }
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+          if (data.user.Role === 'Admin') window.location.href = '/admin.html';
+          else if (data.user.Role === 'Organizer') window.location.href = '/organizer.html';
+          else window.location.href = '/atlet.html';
+        } else {
+          alert('Неверный email или пароль');
+        }
+      } catch(e) {
+        alert('Ошибка сервера');
+      }
+    }
+
+    // ===== РЕГИСТРАЦИЯ =====
+    async function register() {
+      const password = document.getElementById('regPassword').value;
+      const confirm = document.getElementById('regPasswordConfirm').value;
+      if (password !== confirm) {
+        alert('Пароли не совпадают');
+        return;
+      }
+      if (password.length < 4) {
+        alert('Пароль должен быть не менее 4 символов');
+        return;
+      }
+      const data = {
+        fio: document.getElementById('regFio').value,
+        email: document.getElementById('regEmail').value,
+        phone: document.getElementById('regPhone').value,
+        birthDate: document.getElementById('regBirth').value,
+        weight: parseFloat(document.getElementById('regWeight').value),
+        rank: document.getElementById('regRank').value,
+        gender: document.getElementById('regGender').value,
+        password: password
+      };
+      if (!data.fio || !data.email || !data.birthDate || !data.weight || !data.password) {
+        alert('Заполните все обязательные поля');
+        return;
+      }
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert('✅ Регистрация успешна! Теперь войдите.');
+          closeRegisterModal();
+          openLoginModal();
+        } else {
+          alert('❌ Ошибка: ' + result.message);
+        }
+      } catch(e) {
+        alert('Ошибка сервера');
+      }
+    }
+
+    // ===== ЗАЯВКА НА ОРГАНИЗАТОРА (БЕЗ АВТОРИЗАЦИИ) =====
+    async function sendOrganizerRequest() {
+      const data = {
+        fio: document.getElementById('orgFio').value,
+        email: document.getElementById('orgEmail').value,
+        phone: document.getElementById('orgPhone').value,
+        password: document.getElementById('orgPassword').value,
+        message: document.getElementById('orgMessage').value
+      };
+      if (!data.fio || !data.email || !data.phone || !data.password) {
+        alert('Заполните все обязательные поля');
+        return;
+      }
+      try {
+        const res = await fetch('/api/organizer/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (result.success) {
+          alert('✅ Заявка отправлена! На вашу почту придет подтверждение.');
+          closeOrganizerModal();
+          document.getElementById('orgFio').value = '';
+          document.getElementById('orgEmail').value = '';
+          document.getElementById('orgPhone').value = '';
+          document.getElementById('orgPassword').value = '';
+          document.getElementById('orgMessage').value = '';
+        } else {
+          alert('❌ Ошибка: ' + result.message);
+        }
+      } catch(e) {
+        alert('Ошибка сервера');
+      }
+    }
+
+    // ===== ЗАГРУЗКА ТУРНИРОВ =====
+    async function loadTournaments() {
+      const container = document.getElementById('tournamentsContainer');
+      try {
+        const res = await fetch('/api/competitions');
+        const tournaments = await res.json();
+        if (!tournaments.length) {
+          container.innerHTML = '<div class="loading">😢 Пока нет активных турниров</div>';
+          return;
+        }
+        container.innerHTML = '';
+        tournaments.forEach(t => {
+          const card = document.createElement('div');
+          card.className = 'tournament-card';
+          card.innerHTML = `
+            <div class="tournament-img">
+              <div class="tournament-badge">РЕГИСТРАЦИЯ</div>
+            </div>
+            <div class="tournament-content">
+              <div class="tournament-title">${escapeHtml(t.Title) || 'Без названия'}</div>
+              <div class="tournament-info">📅 ${t.EventDate || 'Дата не указана'}</div>
+              <div class="tournament-info">📍 ${t.Location || 'Место не указано'}</div>
+              <div class="tournament-info">🏆 Уровень: ${t.Level || 'Городские'}</div>
+              <div class="tournament-price">💰 ${t.EntryFee || 0} BYN</div>
+              <button class="btn-details apply-btn" data-id="${t.CompID}">Подробнее</button>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+        document.querySelectorAll('.apply-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            alert('Для подачи заявки необходимо авторизоваться');
+            openLoginModal();
+          });
+        });
+      } catch(e) {
+        console.error(e);
+        container.innerHTML = '<div class="loading">❌ Ошибка загрузки турниров</div>';
+      }
+    }
+
+    // Простая защита от XSS
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+      });
+    }
+
+    // ===== ПРИВЯЗКА КНОПОК =====
+    document.getElementById('loginBtn').onclick = openLoginModal;
+    document.getElementById('registerBtn').onclick = openRegisterModal;
+    document.getElementById('joinBtn').onclick = openRegisterModal;
+    document.getElementById('organizerApplyBtn').onclick = openOrganizerModal;
+
+    // Закрытие модалок по клику вне
+    window.onclick = function(e) {
+      if (e.target === document.getElementById('loginModal')) closeLoginModal();
+      if (e.target === document.getElementById('registerModal')) closeRegisterModal();
+      if (e.target === document.getElementById('organizerRequestModal')) closeOrganizerModal();
+    }
+
+    loadTournaments();
+  </script>
+</body>
+</html>

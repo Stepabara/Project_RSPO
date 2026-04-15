@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Протоколы соревнований | ARM BY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --glass: rgba(30, 41, 59, 0.7);
+            --primary: #3b82f6;
+            --accent: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #f1f5f9;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+        
+        nav {
+            backdrop-filter: blur(15px);
+            background: rgba(15, 23, 42, 0.95);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            font-weight: 800;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+        .logo span { color: var(--primary); }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .btn-nav {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 8px 20px;
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 500;
+        }
+        .btn-nav:hover {
+            background: var(--glass);
+            border-color: var(--primary);
+        }
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        .btn-success {
+            background: var(--accent);
+            border: none;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+        
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .competitions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .competition-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .competition-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+        .competition-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--warning);
+            margin-bottom: 8px;
+        }
+        .competition-date {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+        }
+        .competition-location {
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+        .protocol-badge {
+            display: inline-block;
+            background: var(--accent);
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-top: 10px;
+        }
+        
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: #1e293b;
+            padding: 2rem;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--primary);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .modal-header h2 {
+            color: var(--warning);
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Таблица протокола */
+        .protocol-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .protocol-table th, .protocol-table td {
+            padding: 12px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .protocol-table th {
+            background: rgba(59, 130, 246, 0.3);
+            font-weight: 600;
+        }
+        .protocol-table td {
+            background: rgba(0,0,0,0.2);
+        }
+        .gold { color: #ffd700; font-weight: bold; }
+        .silver { color: #c0c0c0; font-weight: bold; }
+        .bronze { color: #cd7f32; font-weight: bold; }
+        
+        .category-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin: 1.5rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #64748b;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        
+        .btn-close {
+            background: #475569;
+            color: white;
+        }
+        .btn-close:hover {
+            background: var(--danger);
+        }
+        
+        /* Для печати PDF */
+        @media print {
+            .modal-actions, nav, .btn-close {
+                display: none;
+            }
+            .modal-content {
+                background: white;
+                color: black;
+            }
+            .protocol-table th {
+                background: #e2e8f0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo" onclick="location.href='/'">ARM <span>SYSTEM</span></div>
+        <div class="nav-buttons">
+            <button class="btn-nav" onclick="location.href='/admin.html'">👑 Админ панель</button>
+            <button class="btn-nav" onclick="location.href='/'">🏠 Главная</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h2 class="section-title">📋 Протоколы соревнований</h2>
+            <div id="competitionsList" class="competitions-grid">
+                <div class="empty-state">Загрузка...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно с протоколом -->
+    <div id="protocolModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Протокол соревнований</h2>
+                <div class="modal-actions">
+                    <button class="btn btn-success" onclick="downloadPDF()">📄 Скачать PDF</button>
+                    <button class="btn btn-close" onclick="closeModal()">✕ Закрыть</button>
+                </div>
+            </div>
+            <div id="protocolContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let allCompetitions = [];
+        let currentProtocolData = null;
+
+        // Загрузка всех завершенных турниров
+        async function loadCompetitions() {
+            try {
+                const res = await fetch('/api/competitions');
+                const comps = await res.json();
+                
+                // Фильтруем завершенные турниры
+                const today = new Date();
+                const completed = comps.filter(c => new Date(c.EventDate) < today || c.Status === 'Completed' || c.IsCompleted === 1);
+                
+                allCompetitions = completed;
+                renderCompetitionsList();
+            } catch(e) {
+                console.error('Ошибка загрузки:', e);
+                document.getElementById('competitionsList').innerHTML = '<div class="empty-state">❌ Ошибка загрузки</div>';
+            }
+        }
+
+        function renderCompetitionsList() {
+            const container = document.getElementById('competitionsList');
+            
+            if (allCompetitions.length === 0) {
+                container.innerHTML = '<div class="empty-state">📭 Нет завершенных соревнований</div>';
+                return;
+            }
+            
+            container.innerHTML = allCompetitions.map(comp => `
+                <div class="competition-card" onclick="loadProtocol(${comp.CompID})">
+                    <div class="competition-title">${comp.Title}</div>
+                    <div class="competition-date">📅 ${comp.EventDate || 'Дата не указана'}</div>
+                    <div class="competition-location">📍 ${comp.Location || 'Место не указано'}</div>
+                    <div class="competition-location">🏆 Уровень: ${comp.Level || 'Городские'}</div>
+                    <div class="protocol-badge">📋 Посмотреть протокол</div>
+                </div>
+            `).join('');
+        }
+
+        // Загрузка протокола для выбранного турнира
+        async function loadProtocol(compId) {
+            try {
+                // Получаем данные турнира
+                const compRes = await fetch('/api/competitions');
+                const comps = await compRes.json();
+                const tournament = comps.find(c => c.CompID === compId);
+                
+                if (!tournament) {
+                    alert('Турнир не найден');
+                    return;
+                }
+                
+                // Получаем протоколы из БД
+                const protocolRes = await fetch(`/api/protocol/by-competition/${compId}`);
+                const protocols = await protocolRes.json();
+                
+                // Получаем участников
+                const participantsRes = await fetch(`/api/organizer/confirmed/${tournament.OrganizerID}`);
+                const participants = await participantsRes.json();
+                const tournamentParticipants = participants.filter(p => p.CompID === compId);
+                
+                // Формируем протокол
+                const protocolData = {
+                    tournament: tournament,
+                    participants: tournamentParticipants,
+                    protocols: protocols
+                };
+                
+                currentProtocolData = protocolData;
+                renderProtocol(protocolData);
+                document.getElementById('modalTitle').innerHTML = `📋 ${tournament.Title}`;
+                document.getElementById('protocolModal').style.display = 'flex';
+                
+            } catch(e) {
+                console.error('Ошибка загрузки протокола:', e);
+                alert('Ошибка загрузки протокола');
+            }
+        }
+
+        function renderProtocol(data) {
+            const container = document.getElementById('protocolContent');
+            const tournament = data.tournament;
+            const participants = data.participants;
+            const protocols = data.protocols;
+            
+            // Группируем участников по категориям
+            const categories = {};
+            participants.forEach(p => {
+                const cat = p.Category || 'Общая категория';
+                if (!categories[cat]) categories[cat] = [];
+                categories[cat].push(p);
+            });
+            
+            let html = `
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h1 style="color: var(--warning);">${tournament.Title}</h1>
+                    <p>📅 ${tournament.EventDate} | 📍 ${tournament.Location}</p>
+                    <p>🏆 Уровень: ${tournament.Level || 'Городские'} | 👤 Организатор: ${tournament.OrganizerFIO}</p>
+                    <hr style="margin: 1rem 0;">
+                </div>
+            `;
+            
+            if (Object.keys(categories).length === 0) {
+                html += '<div class="empty-state">Нет данных для отображения</div>';
+            }
+            
+            // Сортируем категории: женские сначала, потом мужские
+            const sortedCategories = Object.keys(categories).sort((a, b) => {
+                if (a.includes('Женщины') && !b.includes('Женщины')) return -1;
+                if (!a.includes('Женщины') && b.includes('Женщины')) return 1;
+                return a.localeCompare(b);
+            });
+            
+            for (let category of sortedCategories) {
+                const categoryParticipants = categories[category];
+                
+                // Сортируем участников по общему рейтингу
+                const sortedParticipants = [...categoryParticipants].sort((a, b) => {
+                    // Ищем протоколы для участников
+                    const protoA = protocols.find(p => p.UserID === a.UserID);
+                    const protoB = protocols.find(p => p.UserID === b.UserID);
+                    const totalA = (protoA?.WinsLeft || 0) + (protoA?.WinsRight || 0);
+                    const totalB = (protoB?.WinsLeft || 0) + (protoB?.WinsRight || 0);
+                    return totalB - totalA;
+                });
+                
+                html += `
+                    <h3 class="category-title">📌 ${category}</h3>
+                    <table class="protocol-table">
+                        <thead>
+                            <tr>
+                                <th>Место</th>
+                                <th>Участник</th>
+                                <th>Вес</th>
+                                <th>Левая рука</th>
+                                <th>Правая рука</th>
+                                <th>Всего побед</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                sortedParticipants.forEach((p, idx) => {
+                    const proto = protocols.find(pd => pd.UserID === p.UserID);
+                    const leftInfo = proto ? `${proto.WinsLeft || 0}п / ${proto.LossesLeft || 0}п` : '—';
+                    const rightInfo = proto ? `${proto.WinsRight || 0}п / ${proto.LossesRight || 0}п` : '—';
+                    const totalWins = proto ? (proto.WinsLeft || 0) + (proto.WinsRight || 0) : 0;
+                    let placeClass = '';
+                    let medal = '';
+                    
+                    if (idx === 0) {
+                        medal = '🥇';
+                        placeClass = 'gold';
+                    } else if (idx === 1) {
+                        medal = '🥈';
+                        placeClass = 'silver';
+                    } else if (idx === 2) {
+                        medal = '🥉';
+                        placeClass = 'bronze';
+                    }
+                    
+                    html += `
+                        <tr>
+                            <td class="${placeClass}">${medal} ${idx + 1}</td>
+                            <td><b>${p.FIO}</b></td>
+                            <td>${p.Weight} кг</td>
+                            <td>${leftInfo}</td>
+                            <td>${rightInfo}</td>
+                            <td style="color: var(--accent);">${totalWins}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                        </tbody>
+                    </table>
+                `;
+            }
+            
+            html += `
+                <div style="margin-top: 2rem; text-align: center; color: #64748b; font-size: 0.85rem;">
+                    Протокол сформирован ${new Date().toLocaleString()}
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        function closeModal() {
+            document.getElementById('protocolModal').style.display = 'none';
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('protocolContent');
+            const opt = {
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: `protocol_${currentProtocolData?.tournament?.Title || 'competition'}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, letterRendering: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // Закрытие по клику вне модалки
+        window.onclick = function(event) {
+            const modal = document.getElementById('protocolModal');
+            if (event.target === modal) closeModal();
+        }
+
+        // Инициализация
+        loadCompetitions();
+    </script>
+</body>
+</html>

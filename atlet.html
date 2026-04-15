@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARM SYSTEM PRO | Личный кабинет</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #000000;
+      font-family: 'Montserrat', Helvetica, sans-serif;
+      color: #ffffff;
+    }
+
+    .header {
+      background: rgba(0, 0, 0, 0.95);
+      padding: 20px 80px;
+      border-bottom: 1px solid #333;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo img {
+      height: 32px;
+      width: auto;
+    }
+    .logo span {
+      font-size: 24px;
+      font-weight: 900;
+      color: white;
+    }
+    .nav-buttons {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .user-menu {
+      position: relative;
+    }
+    .user-btn {
+      background: #1f2937;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      color: white;
+      font-size: 14px;
+    }
+    .dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: #1E1E1E;
+      border: 1px solid #444;
+      border-radius: 12px;
+      min-width: 200px;
+      display: none;
+      z-index: 100;
+      margin-top: 8px;
+    }
+    .dropdown.active {
+      display: block;
+    }
+    .dropdown-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      color: white;
+      transition: 0.3s;
+    }
+    .dropdown-item:hover {
+      background: #333;
+    }
+    .divider {
+      height: 1px;
+      background: #444;
+      margin: 5px 0;
+    }
+
+    .hero {
+      position: relative;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background-size: cover;
+      background-position: center;
+      background-image: url('img/img3.png');
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+    .hero h1 {
+      font-family: "Montserrat-Black", Helvetica;
+      font-weight: 900;
+      font-size: 56px;
+      margin-bottom: 16px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    .hero p {
+      font-family: "Montserrat-Light", Helvetica;
+      font-weight: 300;
+      font-size: 20px;
+      color: #ccc;
+    }
+
+    .section {
+      padding: 60px 80px;
+    }
+    .section-title {
+      font-family: "Montserrat-Black", Helvetica;
+      font-weight: 900;
+      font-size: 32px;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .cards-grid {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 24px;
+      width: 320px;
+      transition: 0.3s;
+    }
+    .card:hover {
+      border-color: #888;
+      transform: translateY(-3px);
+    }
+    .card h3 {
+      font-family: "Montserrat-Bold", Helvetica;
+      font-weight: 700;
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+    .card-info {
+      font-family: "Montserrat-Regular", Helvetica;
+      font-weight: 400;
+      color: #999;
+      margin: 8px 0;
+      font-size: 14px;
+    }
+    .card-status {
+      margin: 12px 0;
+      font-weight: 600;
+    }
+    .status-confirmed { color: #4ade80; }
+    .status-pending { color: #f59e0b; }
+    .status-rejected { color: #ef4444; }
+    .btn {
+      background: white;
+      color: black;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      width: 100%;
+      font-family: "Montserrat-Bold", Helvetica;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: 0.3s;
+    }
+    .btn:hover {
+      background: #ccc;
+      transform: translateY(-2px);
+    }
+
+    .organizer-section {
+      position: relative;
+      background-image: url('img/img2.png');
+      background-size: cover;
+      background-position: center;
+      padding: 100px 80px;
+      text-align: center;
+    }
+    .organizer-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+    }
+    .organizer-content {
+      position: relative;
+      z-index: 2;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .organizer-content h2 {
+      font-family: "Montserrat-Black", Helvetica;
+      font-weight: 900;
+      font-size: 42px;
+      margin-bottom: 24px;
+      color: white;
+    }
+    .organizer-content p {
+      font-family: "Montserrat-Regular", Helvetica;
+      font-weight: 400;
+      font-size: 18px;
+      color: #d1d5db;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    .btn-white {
+      background: white;
+      color: black;
+      padding: 14px 42px;
+      border-radius: 8px;
+      font-family: "Montserrat-Bold", Helvetica;
+      font-weight: 700;
+      font-size: 18px;
+      cursor: pointer;
+      transition: 0.3s;
+      display: inline-block;
+      border: none;
+    }
+    .btn-white:hover {
+      background: #ccc;
+      transform: translateY(-2px);
+    }
+
+    .footer {
+      background: #000;
+      border-top: 1px solid #333;
+      padding: 48px 80px;
+    }
+    .footer-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 40px;
+    }
+    .footer-logo {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    .footer-desc {
+      color: #999;
+      font-size: 14px;
+    }
+    .footer-title {
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+    .footer-links {
+      list-style: none;
+    }
+    .footer-links li {
+      color: #999;
+      margin: 8px 0;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .footer-copyright {
+      text-align: center;
+      padding-top: 32px;
+      margin-top: 32px;
+      border-top: 1px solid #333;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      backdrop-filter: blur(4px);
+    }
+    .modal-content {
+      background: #1E1E1E;
+      padding: 32px;
+      border-radius: 24px;
+      width: 600px;
+      max-width: 90%;
+      border: 1px solid #444;
+      position: relative;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .modal-header h2 {
+      color: #ccc;
+      font-size: 24px;
+    }
+    .close-modal {
+      font-size: 28px;
+      cursor: pointer;
+      color: #888;
+    }
+    .close-modal:hover {
+      color: #fff;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #888;
+      font-size: 14px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px;
+      background: #0F0F0F;
+      border: 1px solid #333;
+      color: white;
+      border-radius: 8px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .modal-actions button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-save { background: #666; color: white; }
+    .btn-save:hover { background: #888; }
+    .btn-cancel { background: #333; color: white; }
+    .btn-cancel:hover { background: #555; }
+
+    /* Блок баланса внутри модалки */
+    .modal-balance {
+      background: #0F0F0F;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .modal-balance-info {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .modal-balance-label {
+      font-size: 16px;
+      color: #999;
+    }
+    .modal-balance-amount {
+      font-size: 28px;
+      font-weight: bold;
+      color: #4ade80;
+    }
+    .btn-topup-modal {
+      background: #16a34a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .btn-topup-modal:hover {
+      background: #15803d;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+      font-size: 18px;
+    }
+
+    @media (max-width: 768px) {
+      .header { padding: 15px 20px; }
+      .section { padding: 40px 20px; }
+      .hero h1 { font-size: 32px; }
+      .hero p { font-size: 16px; }
+      .section-title { font-size: 24px; }
+      .organizer-section { padding: 60px 20px; }
+      .organizer-content h2 { font-size: 28px; }
+      .cards-grid { flex-direction: column; align-items: center; }
+      .form-row { grid-template-columns: 1fr; }
+      .modal-balance { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="logo">
+        <img src="img/img_logo.png" alt="logo" onerror="this.style.display='none'">
+        <span>ARM SYSTEM PRO</span>
+      </div>
+      <div class="nav-buttons">
+        <div class="user-menu" id="userMenu">
+          <button class="user-btn" id="userBtn">
+            <span id="userName">Загрузка...</span>
+            <span>▼</span>
+          </button>
+          <div class="dropdown" id="dropdown">
+            <div class="dropdown-item" id="profileBtn">👤 Мой профиль</div>
+            <div class="dropdown-item" id="myApplicationsBtn">📋 Мои заявки</div>
+            <div class="divider"></div>
+            <div class="dropdown-item" id="logoutBtn">🚪 Выйти</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-content">
+      <h1>С возвращением, <span id="heroName">Атлет</span>!</h1>
+      <p>Готов к новым победам? Выбери турнир и покажи свою силу</p>
+    </div>
+  </div>
+
+  <section class="section" id="myApplicationsSection">
+    <h2 class="section-title">Мои активные заявки</h2>
+    <div class="cards-grid" id="myApplicationsContainer">
+      <div class="loading">Загрузка...</div>
+    </div>
+  </section>
+
+  <section class="section" id="availableTournamentsSection">
+    <h2 class="section-title">Доступные турниры</h2>
+    <div class="cards-grid" id="availableTournamentsContainer">
+      <div class="loading">Загрузка...</div>
+    </div>
+  </section>
+
+  <div class="organizer-section">
+    <div class="organizer-content">
+      <h2>Хотите армфайт?</h2>
+      <p>Отправьте свою кандидатуру в сообществе телеграмм в ТГ канале АРМБАЗА</p>
+      <button class="btn-white" id="telegramBtn">Перейти</button>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div>
+        <div class="footer-logo">ARM SYSTEM PRO</div>
+        <p class="footer-desc">Профессиональная платформа для управления турнирами по армрестлингу</p>
+      </div>
+      <div>
+        <div class="footer-title">Информация</div>
+        <ul class="footer-links">
+          <li>О проекте</li>
+          <li>Правила</li>
+          <li>Контакты</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-copyright">© 2024 ARM SYSTEM PRO. Все права защищены.</div>
+  </footer>
+
+  <!-- Модальное окно редактирования профиля С БАЛАНСОМ ВНУТРИ -->
+  <div id="profileModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>✏️ Редактирование профиля</h2>
+        <span class="close-modal" onclick="closeProfileModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <!-- Блок баланса внутри модалки -->
+        <div class="modal-balance">
+          <div class="modal-balance-info">
+            <span class="modal-balance-label">💰 Текущий баланс:</span>
+            <span class="modal-balance-amount" id="modalBalanceAmount">0</span>
+            <span class="modal-balance-label">BYN</span>
+          </div>
+          <button class="btn-topup-modal" id="topupFromModalBtn">Пополнить</button>
+        </div>
+
+        <div class="form-group">
+          <label>ФИО</label>
+          <input type="text" id="editFio" placeholder="Иванов Иван Иванович">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="editEmail" placeholder="example@mail.com">
+          </div>
+          <div class="form-group">
+            <label>Телефон</label>
+            <input type="tel" id="editPhone" placeholder="+375(29)123-45-67">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Вес (кг)</label>
+            <input type="number" id="editWeight" step="0.1" placeholder="75.5">
+          </div>
+          <div class="form-group">
+            <label>Дата рождения</label>
+            <input type="date" id="editBirth">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Разряд</label>
+            <select id="editRank">
+              <option value="Б/Р">Без разряда</option>
+              <option value="3 разряд">3 разряд</option>
+              <option value="2 разряд">2 разряд</option>
+              <option value="1 разряд">1 разряд</option>
+              <option value="КМС">КМС</option>
+              <option value="МС">МС</option>
+              <option value="МСМК">МСМК</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Пол</label>
+            <select id="editGender">
+              <option value="Мужской">Мужской</option>
+              <option value="Женский">Женский</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Пароль (оставьте пустым, если не меняете)</label>
+          <input type="password" id="editPassword" placeholder="Новый пароль">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-save" onclick="saveProfile()">💾 Сохранить</button>
+        <button class="btn-cancel" onclick="closeProfileModal()">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Отдельное модальное окно для пополнения (вызывается из модалки профиля) -->
+  <div id="topupModal" class="modal topup-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>💰 Пополнение баланса</h2>
+        <span class="close-modal" onclick="closeTopupModal()">&times;</span>
+      </div>
+      <div class="form-group">
+        <label>Сумма (BYN)</label>
+        <input type="number" id="topupAmount" placeholder="Введите сумму" min="1" step="1">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-save" onclick="topupBalance()">Пополнить</button>
+        <button class="btn-cancel" onclick="closeTopupModal()">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let user = JSON.parse(localStorage.getItem('user'));
+    if (!user) window.location.href = '/';
+
+    // Обновление отображения баланса в модалке
+    function updateModalBalance() {
+      const modalBalanceSpan = document.getElementById('modalBalanceAmount');
+      if (modalBalanceSpan) modalBalanceSpan.innerText = user.Balance || 0;
+    }
+
+    document.getElementById('userName').innerText = user.FIO || 'Пользователь';
+    document.getElementById('heroName').innerText = user.FIO?.split(' ')[0] || 'Атлет';
+
+    // Выпадающее меню
+    const userBtn = document.getElementById('userBtn');
+    const dropdown = document.getElementById('dropdown');
+    userBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('active');
+    });
+    document.addEventListener('click', () => {
+      dropdown.classList.remove('active');
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('user');
+      window.location.href = '/';
+    });
+
+    document.getElementById('myApplicationsBtn').addEventListener('click', () => {
+      document.getElementById('myApplicationsSection').scrollIntoView({ behavior: 'smooth' });
+      dropdown.classList.remove('active');
+    });
+
+    // Редактирование профиля
+    function openProfileModal() {
+      document.getElementById('editFio').value = user.FIO || '';
+      document.getElementById('editEmail').value = user.Email || '';
+      document.getElementById('editPhone').value = user.Phone || '';
+      document.getElementById('editWeight').value = user.Weight || '';
+      document.getElementById('editBirth').value = user.BirthDate || '';
+      document.getElementById('editRank').value = user.Rank || 'Б/Р';
+      document.getElementById('editGender').value = user.Gender || 'Мужской';
+      document.getElementById('editPassword').value = '';
+      updateModalBalance();
+      document.getElementById('profileModal').style.display = 'flex';
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profileModal').style.display = 'none';
+    }
+
+    async function saveProfile() {
+      const payload = {
+        userId: user.UserID,
+        fio: document.getElementById('editFio').value,
+        email: document.getElementById('editEmail').value,
+        phone: document.getElementById('editPhone').value,
+        weight: parseFloat(document.getElementById('editWeight').value),
+        birthDate: document.getElementById('editBirth').value,
+        rank: document.getElementById('editRank').value,
+        gender: document.getElementById('editGender').value,
+        password: document.getElementById('editPassword').value
+      };
+      try {
+        const res = await fetch('/api/user/update-full', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          alert('✅ Профиль обновлён!');
+          user = { ...user, ...payload };
+          localStorage.setItem('user', JSON.stringify(user));
+          document.getElementById('userName').innerText = user.FIO;
+          document.getElementById('heroName').innerText = user.FIO?.split(' ')[0];
+          updateModalBalance();
+          closeProfileModal();
+        } else {
+          alert('❌ Ошибка сохранения');
+        }
+      } catch(e) {
+        alert('Ошибка сервера');
+      }
+    }
+
+    document.getElementById('profileBtn').addEventListener('click', openProfileModal);
+
+    // Пополнение баланса
+    function openTopupModal() {
+      document.getElementById('topupModal').style.display = 'flex';
+    }
+
+    function closeTopupModal() {
+      document.getElementById('topupModal').style.display = 'none';
+    }
+
+    async function topupBalance() {
+      const amount = parseFloat(document.getElementById('topupAmount').value);
+      if (!amount || amount <= 0) {
+        alert('Введите корректную сумму');
+        return;
+      }
+      try {
+        const res = await fetch('/api/user/add-balance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.UserID, amount: amount })
+        });
+        if (res.ok) {
+          user.Balance = (user.Balance || 0) + amount;
+          localStorage.setItem('user', JSON.stringify(user));
+          updateModalBalance();
+          alert(`✅ Баланс пополнен на ${amount} BYN`);
+          closeTopupModal();
+          document.getElementById('topupAmount').value = '';
+        } else {
+          alert('❌ Ошибка пополнения');
+        }
+      } catch(e) {
+        alert('Ошибка сервера');
+      }
+    }
+
+    // Кнопка пополнения внутри модалки профиля
+    document.getElementById('topupFromModalBtn').addEventListener('click', () => {
+      openTopupModal();
+    });
+
+    async function loadAvailableTournaments() {
+      const container = document.getElementById('availableTournamentsContainer');
+      try {
+        const res = await fetch('/api/competitions');
+        const tournaments = await res.json();
+        if (!tournaments.length) {
+          container.innerHTML = '<div class="loading">😢 Пока нет активных турниров</div>';
+          return;
+        }
+        container.innerHTML = '';
+        tournaments.forEach(t => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <h3>${t.Title || 'Без названия'}</h3>
+            <div class="card-info">📅 ${t.EventDate || 'Дата не указана'}</div>
+            <div class="card-info">📍 ${t.Location || 'Место не указано'}</div>
+            <div class="card-info">🏆 Уровень: ${t.Level || 'Городские'}</div>
+            <div class="card-info">💰 Взнос: ${t.EntryFee || 0} BYN</div>
+            <button class="btn apply-btn" data-id="${t.CompID}">Подать заявку</button>
+          `;
+          container.appendChild(card);
+        });
+        document.querySelectorAll('.apply-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            const compId = btn.getAttribute('data-id');
+            try {
+              const res = await fetch('/api/apply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: user.UserID, compId: parseInt(compId) })
+              });
+              const result = await res.json();
+              if (result.success) {
+                alert('✅ Заявка подана! Ожидайте подтверждения организатора.');
+                loadMyApplications();
+              } else {
+                alert('❌ Ошибка: ' + result.message);
+              }
+            } catch(e) {
+              alert('Ошибка сервера');
+            }
+          });
+        });
+      } catch(e) {
+        console.error(e);
+        container.innerHTML = '<div class="loading">❌ Ошибка загрузки турниров</div>';
+      }
+    }
+
+    async function loadMyApplications() {
+      const container = document.getElementById('myApplicationsContainer');
+      try {
+        const res = await fetch(`/api/user/applications/${user.UserID}`);
+        const applications = await res.json();
+        if (!applications.length) {
+          container.innerHTML = '<div class="loading">📭 У вас пока нет заявок</div>';
+          return;
+        }
+        container.innerHTML = '';
+        applications.forEach(app => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          let statusHtml = '';
+          let statusClass = '';
+          if (app.IsPaid === 1) {
+            statusClass = 'status-confirmed';
+            statusHtml = '✅ Заявка подтверждена';
+          } else if (app.Status === 'Pending') {
+            statusClass = 'status-pending';
+            statusHtml = '⏳ Ожидает подтверждения';
+          } else if (app.Status === 'Rejected') {
+            statusClass = 'status-rejected';
+            statusHtml = '❌ Заявка отклонена';
+          } else {
+            statusClass = 'status-pending';
+            statusHtml = '⏳ Ожидает подтверждения';
+          }
+          card.innerHTML = `
+            <h3>${app.TournamentTitle || 'Турнир'}</h3>
+            <div class="card-info">📅 ${app.EventDate || 'Дата не указана'}</div>
+            <div class="card-info">📍 ${app.Location || 'Место не указано'}</div>
+            <div class="card-info">🏆 Категория: ${app.Category || 'Не определена'}</div>
+            <div class="card-info">💰 Взнос: ${app.EntryFee || 0} BYN</div>
+            <div class="card-status ${statusClass}">${statusHtml}</div>
+          `;
+          container.appendChild(card);
+        });
+      } catch(e) {
+        console.error(e);
+        container.innerHTML = '<div class="loading">❌ Ошибка загрузки заявок</div>';
+      }
+    }
+
+    document.getElementById('telegramBtn').addEventListener('click', () => alert('Переход в Telegram канал (заглушка)'));
+
+    loadAvailableTournaments();
+    loadMyApplications();
+  </script>
+</body>
+</html>

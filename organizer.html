@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Организатор | ARM SYSTEM PRO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0A0A0A; font-family: 'Inter', sans-serif; color: #FFFFFF; }
+
+    .header { background: rgba(10,10,10,0.95); padding: 15px 5%; border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+    .header .container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; flex-wrap: wrap; gap: 15px; }
+    .logo span { font-size: 20px; font-weight: 800; color: white; }
+    .nav-center { display: flex; align-items: center; gap: 20px; flex: 1; justify-content: flex-end; }
+    .tournament-select { background: #1A1A1A; border: 1px solid #333; border-radius: 30px; padding: 10px 16px; color: white; font-size: 14px; min-width: 260px; }
+    .profile-dropdown { position: relative; }
+    .profile-btn { background: #1A1A1A; border: 1px solid #333; border-radius: 40px; padding: 8px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: 0.3s; }
+    .profile-btn:hover { background: #2A2A2A; border-color: #666; }
+    .profile-avatar { width: 32px; height: 32px; background: #444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .profile-name { font-weight: 500; font-size: 14px; }
+    .profile-role { font-size: 11px; opacity: 0.7; }
+    .dropdown-arrow { font-size: 12px; transition: 0.3s; }
+    .dropdown-content { position: absolute; top: 100%; right: 0; margin-top: 10px; background: #1E1E1E; border: 1px solid #444; border-radius: 12px; min-width: 220px; display: none; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    .profile-dropdown.active .dropdown-content { display: block; }
+    .profile-dropdown.active .dropdown-arrow { transform: rotate(180deg); }
+    .dropdown-item { padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: 0.2s; color: white; }
+    .dropdown-item:hover { background: #333; }
+    .dropdown-divider { height: 1px; background: #444; margin: 5px 0; }
+
+    .tabs { display: flex; gap: 10px; margin: 25px auto 0; max-width: 1400px; padding: 0 20px; flex-wrap: wrap; }
+    .tab-btn { background: transparent; border: 1px solid #444; padding: 12px 28px; border-radius: 40px; color: white; cursor: pointer; font-weight: 600; transition: 0.3s; }
+    .tab-btn.active { background: #666; border-color: #999; }
+    .tab-btn:hover { background: #333; }
+    .tab-content { display: none; max-width: 1400px; margin: 30px auto; padding: 0 20px; }
+    .tab-content.active { display: block; }
+
+    .card { background: #1A1A1A; border: 1px solid #333; border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+    .card h3 { font-size: 20px; margin-bottom: 20px; color: #CCCCCC; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 8px; color: #888; font-size: 13px; font-weight: 500; }
+    input, select, textarea { width: 100%; padding: 12px; background: #0F0F0F; border: 1px solid #333; border-radius: 8px; color: white; font-family: inherit; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #666; }
+    .btn { padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; border: none; }
+    .btn-primary { background: #666; color: white; }
+    .btn-primary:hover { background: #888; }
+    .btn-danger { background: #333; color: white; }
+    .btn-danger:hover { background: #555; }
+    .btn-success { background: #16a34a; color: white; }
+    .btn-success:hover { background: #15803d; }
+    .btn-fight { background: #dc2626; color: white; font-size: 20px; padding: 12px 40px; border-radius: 40px; }
+    .btn-fight:hover { background: #b91c1c; }
+
+    .arena-controls { display: flex; gap: 20px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
+    .arena-controls select { width: 200px; }
+    .fight-area { display: flex; justify-content: center; align-items: center; gap: 40px; margin: 30px 0; flex-wrap: wrap; }
+    .fighter-card { background: #1E1E1E; border: 2px solid #444; border-radius: 20px; padding: 20px; width: 280px; text-align: center; transition: 0.3s; }
+    .fighter-card.winner { border-color: #CCCCCC; background: #2A2A2A; box-shadow: 0 0 15px rgba(255,255,255,0.1); }
+    .fighter-card.loser { opacity: 0.5; filter: grayscale(0.3); }
+    .vs-circle { width: 70px; height: 70px; background: #555; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; }
+    .ranking-table { width: 100%; border-collapse: collapse; background: #111; border-radius: 12px; overflow: hidden; }
+    .ranking-table th { background: #222; padding: 12px; text-align: left; }
+    .ranking-table td { padding: 10px 12px; border-bottom: 1px solid #2A2A2A; }
+    .rank-1 { border-left: 4px solid #CCCCCC; background: rgba(204,204,204,0.05); }
+    .results-table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+    .results-table th, .results-table td { padding: 10px; border-bottom: 1px solid #333; }
+    .win-row { background: rgba(204,204,204,0.05); }
+    .categories-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .category-card { background: rgba(255,255,255,0.03); border: 1px solid #333; border-radius: 12px; padding: 16px; }
+    .category-title { font-weight: bold; color: #CCCCCC; margin-bottom: 12px; font-size: 16px; }
+    .participant-item { padding: 6px 0; border-bottom: 1px dashed #333; font-size: 14px; }
+
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(4px); }
+    .modal-content { background: #1E1E1E; padding: 30px; border-radius: 20px; width: 550px; max-width: 90%; border: 1px solid #444; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h2 { color: #CCCCCC; font-size: 22px; }
+    .close-modal { font-size: 28px; cursor: pointer; color: #888; }
+    .close-modal:hover { color: white; }
+    .modal-actions { display: flex; gap: 16px; margin-top: 20px; }
+    .settings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+    .tournament-settings-card { background: #1A1A1A; border: 1px solid #333; border-radius: 12px; padding: 16px; transition: 0.3s; }
+    .tournament-settings-card:hover { border-color: #666; transform: translateY(-2px); }
+    .tournament-settings-card h4 { font-size: 18px; margin-bottom: 8px; color: #CCCCCC; }
+    .tournament-status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .status-registration { background: #f59e0b; color: black; }
+    .status-active { background: #10b981; color: white; }
+    .status-completed { background: #6b7280; color: white; }
+    .status-cancelled { background: #ef4444; color: white; }
+    .loading { text-align: center; padding: 40px; color: #888; }
+
+    .protocol-container { background: #1E1E1E; padding: 20px; border-radius: 16px; margin-bottom: 20px; }
+    .protocol-category { margin-bottom: 25px; border-left: 3px solid #f59e0b; padding-left: 15px; }
+    .protocol-category h4 { font-size: 18px; margin-bottom: 10px; color: #f59e0b; }
+    .protocol-hand { margin: 10px 0; background: #2A2A2A; padding: 10px; border-radius: 8px; }
+    .protocol-hand h5 { color: #CCCCCC; margin-bottom: 8px; }
+    .protocol-table { width: 100%; border-collapse: collapse; }
+    .protocol-table th, .protocol-table td { padding: 8px; text-align: left; border-bottom: 1px solid #444; }
+    .medal-1 { color: #FFD700; }
+    .medal-2 { color: #C0C0C0; }
+    .medal-3 { color: #CD7F32; }
+
+    @media (max-width: 768px) {
+      .form-row { grid-template-columns: 1fr; }
+      .fight-area { flex-direction: column; }
+      .fighter-card { width: 100%; max-width: 300px; }
+      .header .container { flex-direction: column; }
+      .nav-center { width: 100%; justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+<header class="header">
+  <div class="container">
+    <div class="logo"><span>💪 ARM SYSTEM PRO</span></div>
+    <div class="nav-center">
+      <select class="tournament-select" id="mainCompSelector" onchange="onTournamentChange()"></select>
+      <div class="profile-dropdown" id="profileDropdown">
+        <div class="profile-btn" id="profileBtn">
+          <div class="profile-avatar" id="profileAvatar">👤</div>
+          <div>
+            <div class="profile-name" id="dropdownUserName">Загрузка...</div>
+            <div class="profile-role">Organizer</div>
+          </div>
+          <span class="dropdown-arrow">▼</span>
+        </div>
+        <div class="dropdown-content">
+          <div class="dropdown-item" id="editProfileItem">👤 Редактирование профиля</div>
+          <div class="dropdown-item" id="createCompItem">➕ Создать соревнование</div>
+          <div class="dropdown-item" id="settingsCompItem">⚙️ Настройка соревнований</div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item" id="logoutItem">🚪 Выйти</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="management">📋 Менеджмент</button>
+  <button class="tab-btn" data-tab="arena">⚔️ Арена</button>
+</div>
+
+<div id="managementTab" class="tab-content active">
+  <div class="card">
+    <h3>⏳ Входящие заявки</h3>
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid #444;">
+            <th style="padding: 12px; text-align: left; color: #888;">Атлет</th>
+            <th style="padding: 12px; text-align: left; color: #888;">Категория</th>
+            <th style="padding: 12px; text-align: left; color: #888;">Действие</th>
+          </tr>
+        </thead>
+        <tbody id="pendingBody"><tr><td colspan="3" style="text-align: center; padding: 40px;">Загрузка...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <h3>✅ Утвержденные списки</h3>
+    <div id="finalGrid" class="categories-grid"><div class="loading">Загрузка...</div></div>
+  </div>
+</div>
+
+<div id="arenaTab" class="tab-content">
+  <div class="card">
+    <h3>⚔️ Арена</h3>
+    <div id="arenaPreStart">
+      <div class="arena-controls">
+        <div><label>Категория:</label><select id="arenaCatSelect"></select></div>
+        <div><label>Рука:</label><select id="arenaHandSelect"><option value="Левая">Левая</option><option value="Правая">Правая</option></select></div>
+      </div>
+      <div style="text-align: center;"><button class="btn btn-primary" onclick="startArena()" id="startArenaBtn">🎯 НАЧАТЬ ТУРНИР</button></div>
+    </div>
+    <div id="fightZone" style="display: none;">
+      <h3 id="handLabel" style="color: #f59e0b; text-align: center; margin-bottom: 20px;"></h3>
+      <div class="fight-area">
+        <div class="fighter-card" id="card0"><div style="font-weight:bold; color:#CCCCCC;">УГОЛ 1</div><h3 id="f0Name">---</h3><div id="f0Losses"></div></div>
+        <div class="vs-circle">VS</div>
+        <div class="fighter-card" id="card1"><div style="font-weight:bold; color:#CCCCCC;">УГОЛ 2</div><h3 id="f1Name">---</h3><div id="f1Losses"></div></div>
+      </div>
+      <div style="text-align: center;">
+        <button class="btn btn-fight" id="fightBtn" onclick="runBattle()">🔥 БОЙ!</button>
+        <button class="btn btn-primary" id="nextMatchBtn" style="display:none; margin-top:15px;" onclick="nextMatch()">⏩ СЛЕДУЮЩАЯ ПАРА</button>
+      </div>
+    </div>
+    <div id="arenaProgress" style="background:#111; padding:12px; border-radius:8px; margin-bottom:20px; text-align:center;"></div>
+  </div>
+  <div class="card"><h3>🏆 ТЕКУЩИЙ РЕЙТИНГ</h3><div id="rankingContainer"><div class="loading">Начните турнир</div></div></div>
+  <div class="card"><h3>📊 ЛОГ БОЕВ</h3><table class="results-table"><thead><tr><th>Победитель</th><th>vs</th><th>Проигравший</th><th>Рука</th></tr></thead><tbody id="resultsLog"></tbody></table></div>
+</div>
+
+<!-- Модалки -->
+<div id="profileModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>✏️ Редактирование профиля</h2><span class="close-modal" onclick="closeModal('profileModal')">&times;</span></div>
+  <div class="form-group"><label>ФИО</label><input type="text" id="editFio"></div>
+  <div class="form-row"><div class="form-group"><label>Email</label><input type="email" id="editEmail"></div><div class="form-group"><label>Телефон</label><input type="tel" id="editPhone"></div></div>
+  <div class="form-row"><div class="form-group"><label>Вес (кг)</label><input type="number" id="editWeight" step="0.1"></div><div class="form-group"><label>Дата рождения</label><input type="date" id="editBirth"></div></div>
+  <div class="form-row"><div class="form-group"><label>Разряд</label><select id="editRank"><option value="Б/Р">Без разряда</option><option value="3 разряд">3 разряд</option><option value="2 разряд">2 разряд</option><option value="1 разряд">1 разряд</option><option value="КМС">КМС</option><option value="МС">МС</option><option value="МСМК">МСМК</option></select></div><div class="form-group"><label>Пол</label><select id="editGender"><option value="Мужской">Мужской</option><option value="Женский">Женский</option></select></div></div>
+  <div class="form-group"><label>Новый пароль</label><input type="password" id="editPassword" placeholder="Оставьте пустым"></div>
+  <div class="modal-actions"><button class="btn btn-primary" onclick="saveProfile()">💾 Сохранить</button><button class="btn btn-danger" onclick="closeModal('profileModal')">Отмена</button></div>
+</div></div>
+
+<div id="createTournamentModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>🏆 Создать соревнование</h2><span class="close-modal" onclick="closeModal('createTournamentModal')">&times;</span></div>
+  <div class="form-group"><label>Название</label><input type="text" id="modalCTitle"></div>
+  <div class="form-group"><label>Место</label><input type="text" id="modalCLoc"></div>
+  <div class="form-row"><div class="form-group"><label>Дата</label><input type="date" id="modalCDate"></div><div class="form-group"><label>Взнос (BYN)</label><input type="number" id="modalCFee" value="50"></div></div>
+  <div class="form-group"><label>Категории (каждая с новой строки)</label><textarea id="modalCCats" rows="4"></textarea></div>
+  <div class="modal-actions"><button class="btn btn-primary" onclick="modalCreateComp()">Создать</button><button class="btn btn-danger" onclick="closeModal('createTournamentModal')">Отмена</button></div>
+</div></div>
+
+<div id="settingsModal" class="modal"><div class="modal-content" style="max-width: 800px;"><div class="modal-header"><h2>⚙️ Настройка соревнований</h2><span class="close-modal" onclick="closeModal('settingsModal')">&times;</span></div><div id="settingsList" class="settings-grid"><div class="loading">Загрузка...</div></div></div></div>
+
+<div id="editTournamentModal" class="modal">
+  <div class="modal-content" style="max-width: 650px;">
+    <div class="modal-header"><h2>✏️ Редактирование турнира</h2><span class="close-modal" onclick="closeModal('editTournamentModal')">&times;</span></div>
+    <input type="hidden" id="editCompId">
+    <div class="form-group"><label>Название турнира</label><input type="text" id="editCompTitle" placeholder="Название"></div>
+    <div class="form-group"><label>Место проведения</label><input type="text" id="editCompLocation" placeholder="Место"></div>
+    <div class="form-row"><div class="form-group"><label>Дата проведения</label><input type="date" id="editCompDate"></div><div class="form-group"><label>Вступительный взнос (BYN)</label><input type="number" id="editCompFee" step="10"></div></div>
+    <div class="form-row"><div class="form-group"><label>Максимум участников</label><input type="number" id="editCompMaxParticipants" min="2" max="256"></div><div class="form-group"><label>Уровень соревнований</label><select id="editCompLevel"><option value="Районные">🏘️ Районные</option><option value="Городские">🏙️ Городские</option><option value="Республиканские">🇧🇾 Республиканские</option></select></div></div>
+    <div class="form-row"><div class="form-group"><label>Статус турнира</label><select id="editCompStatus"><option value="Registration">📝 Регистрация открыта</option><option value="Active">⚔️ Активен (идут бои)</option><option value="Completed">🏁 Завершен</option><option value="Cancelled">❌ Отменен</option></select></div></div>
+    <div class="form-group"><label>Категории (каждая с новой строки)</label><textarea id="editCompCategories" rows="4" placeholder="Женщины До 60кг&#10;Женщины До 70кг&#10;Мужчины До 70кг&#10;Мужчины До 85кг"></textarea></div>
+    <div class="modal-actions"><button class="btn btn-primary" onclick="saveTournamentEdit()">💾 Сохранить изменения</button><button class="btn btn-danger" onclick="closeModal('editTournamentModal')">Отмена</button></div>
+  </div>
+</div>
+
+<!-- Модальное окно для итогового протокола -->
+<div id="protocolModal" class="modal">
+  <div class="modal-content" style="max-width: 700px;">
+    <div class="modal-header">
+      <h2>🏆 ИТОГОВЫЙ ПРОТОКОЛ ТУРНИРА</h2>
+      <span class="close-modal" onclick="closeModal('protocolModal')">&times;</span>
+    </div>
+    <div id="protocolContent" style="max-height: 60vh; overflow-y: auto; margin-bottom: 20px;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveResultsToDatabase()">💾 Сохранить в БД</button>
+      <button class="btn btn-primary" onclick="downloadProtocolPDF()">📄 Скачать PDF</button>
+      <button class="btn btn-danger" onclick="closeModal('protocolModal')">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let user = JSON.parse(localStorage.getItem('user'));
+let athleteStats = {};
+let sortedCategories = [];
+let currentCategoryIdx = 0;
+let currentHandType = 'Левая';
+let currentCategoryAthletes = [];
+let tournamentFinalResults = {};
+let currentPair = [];
+
+if (!user) { 
+  localStorage.setItem('user', JSON.stringify({UserID: 2, FIO: 'Организатор', Role: 'Organizer', Balance: 0})); 
+  user = JSON.parse(localStorage.getItem('user')); 
+}
+if (user.Role !== 'Organizer') window.location.href = '/';
+
+function getOrganizerId() { return user.UserID; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+// Выпадающее меню
+document.getElementById('profileBtn').onclick = (e) => { e.stopPropagation(); document.getElementById('profileDropdown').classList.toggle('active'); };
+document.addEventListener('click', (e) => { if (!document.getElementById('profileDropdown').contains(e.target)) document.getElementById('profileDropdown').classList.remove('active'); });
+document.getElementById('editProfileItem').onclick = () => { document.getElementById('profileModal').style.display = 'flex'; document.getElementById('profileDropdown').classList.remove('active'); };
+document.getElementById('createCompItem').onclick = () => { document.getElementById('createTournamentModal').style.display = 'flex'; document.getElementById('profileDropdown').classList.remove('active'); };
+document.getElementById('settingsCompItem').onclick = () => { document.getElementById('settingsModal').style.display = 'flex'; loadSettings(); document.getElementById('profileDropdown').classList.remove('active'); };
+document.getElementById('logoutItem').onclick = () => { localStorage.removeItem('user'); window.location.href = '/'; };
+
+// Переключение вкладок
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
+    if (btn.dataset.tab === 'management') { loadPending(); loadConfirmed(); }
+  };
+});
+
+function determineGender(fio) {
+  if (!fio) return 'Мужской';
+  const femaleEndings = ['а', 'я', 'ия', 'на', 'ва', 'ка'];
+  const lastChar = fio.split(' ')[0]?.slice(-1) || '';
+  return femaleEndings.includes(lastChar) ? 'Женский' : 'Мужской';
+}
+
+function autoAssignCategory(weight, gender, categoriesList) {
+  if (!categoriesList || categoriesList.length === 0) return 'Не определена';
+  let genderCats = categoriesList.filter(cat => gender === 'Мужской' ? cat.includes('Мужчины') : cat.includes('Женщины'));
+  if (genderCats.length === 0) return categoriesList[0];
+  genderCats.sort((a,b) => (parseInt(a.match(/\d+/)||999) - parseInt(b.match(/\d+/)||999)));
+  for (let cat of genderCats) {
+    let nums = cat.match(/\d+/g);
+    if (nums) {
+      if (cat.includes('До') && weight <= parseInt(nums[0])) return cat;
+      if (cat.includes('Свыше') && weight >= parseInt(nums[0])) return cat;
+      if (nums.length >= 2 && weight >= parseInt(nums[0]) && weight < parseInt(nums[1])) return cat;
+    }
+  }
+  return genderCats[genderCats.length-1];
+}
+
+function sortCategoriesByGenderAndWeight(cats) {
+  let women = cats.filter(c => c.includes('Женщины')).sort((a,b) => (parseInt(a.match(/\d+/)||999) - parseInt(b.match(/\d+/)||999)));
+  let men = cats.filter(c => c.includes('Мужчины')).sort((a,b) => (parseInt(a.match(/\d+/)||999) - parseInt(b.match(/\d+/)||999)));
+  return [...women, ...men];
+}
+
+async function loadTournamentList() {
+  try {
+    const res = await fetch(`/api/organizer/competitions/${getOrganizerId()}`);
+    const comps = await res.json();
+    const sel = document.getElementById('mainCompSelector');
+    if (comps && comps.length > 0) {
+      sel.innerHTML = comps.map(c => `<option value="${c.CompID}" data-cats="${c.Categories || ''}" data-status="${c.Status}">${c.Title} (${c.EventDate})</option>`).join('');
+      sel.value = comps[0].CompID;
+      await loadConfirmed();
+      await loadPending();
+      checkTournamentStatus();
+    } else {
+      sel.innerHTML = '<option value="">Нет турниров</option>';
+    }
+  } catch(e) { console.error(e); }
+}
+
+function checkTournamentStatus() {
+  const status = document.getElementById('mainCompSelector')?.selectedOptions[0]?.getAttribute('data-status');
+  const startBtn = document.getElementById('startArenaBtn');
+  if (status === 'Completed') { startBtn.disabled = true; startBtn.style.opacity = '0.5'; }
+  else { startBtn.disabled = false; startBtn.style.opacity = '1'; }
+}
+
+async function onTournamentChange() {
+  await loadConfirmed();
+  await loadPending();
+  resetArenaState();
+  checkTournamentStatus();
+  const sel = document.getElementById('mainCompSelector');
+  const catsData = sel.selectedOptions[0]?.getAttribute('data-cats');
+  const allCategories = catsData ? catsData.split(',').map(s => s.trim()) : [];
+  const sortedCats = sortCategoriesByGenderAndWeight(allCategories);
+  document.getElementById('arenaCatSelect').innerHTML = sortedCats.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+async function loadConfirmed() {
+  const selectedCompId = document.getElementById('mainCompSelector').value;
+  if (!selectedCompId) return;
+  try {
+    const res = await fetch(`/api/organizer/confirmed/${getOrganizerId()}`);
+    const data = await res.json();
+    const filtered = data.filter(c => c.CompID == selectedCompId);
+    const sel = document.getElementById('mainCompSelector');
+    const catsData = sel.selectedOptions[0]?.getAttribute('data-cats');
+    let allCategories = catsData ? catsData.split(',').map(s => s.trim()) : [];
+    sortedCategories = sortCategoriesByGenderAndWeight(allCategories);
+    document.getElementById('arenaCatSelect').innerHTML = sortedCategories.map(c => `<option value="${c}">${c}</option>`).join('');
+    const groups = {};
+    filtered.forEach(p => {
+      let cat = p.Category || 'Не определена';
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(p);
+      if (!athleteStats[p.UserID]) {
+        athleteStats[p.UserID] = { FIO: p.FIO, L_Wins:0, L_Loss:0, R_Wins:0, R_Loss:0, Category:cat, Weight:p.Weight, UserID:p.UserID, Gender:p.Gender || determineGender(p.FIO) };
+      }
+    });
+    const container = document.getElementById('finalGrid');
+    if (Object.keys(groups).length === 0) { container.innerHTML = '<div class="loading">Нет участников</div>'; return; }
+    container.innerHTML = Object.keys(groups).map(cat => `
+      <div class="category-card"><div class="category-title">📌 ${cat}</div><small>👥 ${groups[cat].length}</small><hr style="margin:10px 0; border-color:#333">${groups[cat].map(p => `<div class="participant-item">• ${p.FIO} (${p.Weight}кг) ${p.Gender === 'Женский' ? '👩' : '👨'}</div>`).join('')}</div>
+    `).join('');
+    tournamentFinalResults = {};
+    sortedCategories.forEach(cat => { tournamentFinalResults[cat] = { Левая: [], Правая: [] }; });
+  } catch(e) { console.error(e); }
+}
+
+async function loadPending() {
+  let selectedCompId = document.getElementById('mainCompSelector').value;
+  if (!selectedCompId) {
+    const sel = document.getElementById('mainCompSelector');
+    if (sel.options.length > 0) { selectedCompId = sel.options[0].value; sel.value = selectedCompId; }
+    else { document.getElementById('pendingBody').innerHTML = '<tr><td colspan="3" style="text-align:center;">Нет доступных турниров</td></tr>'; return; }
+  }
+  try {
+    const res = await fetch(`/api/organizer/applications/${getOrganizerId()}`);
+    const apps = await res.json();
+    const filtered = apps.filter(a => a.CompID == selectedCompId);
+    if (filtered.length === 0) { document.getElementById('pendingBody').innerHTML = '<tr><td colspan="3" style="text-align:center; padding:40px;">📭 Нет ожидающих заявок</td></tr>'; return; }
+    const sel = document.getElementById('mainCompSelector');
+    const catsData = sel.selectedOptions[0]?.getAttribute('data-cats');
+    let allCategories = catsData ? catsData.split(',').map(s => s.trim()) : [];
+    let html = '';
+    for (let a of filtered) {
+      const gender = a.Gender || determineGender(a.FIO);
+      const autoCategory = autoAssignCategory(a.Weight, gender, allCategories);
+      html += `<tr style="border-bottom:1px solid #333;"><td style="padding:12px;"><strong>${a.FIO}</strong><br><small style="color:#888;">${a.Weight} кг, ${a.Rank || 'Б/Р'}</small></td>
+        <td style="padding:12px;"><select id="cat-${a.AppID}" style="width:100%; padding:8px; background:#0F0F0F; border:1px solid #333; border-radius:6px;">${allCategories.map(c => `<option value="${c}" ${c === autoCategory ? 'selected' : ''}>${c}</option>`).join('')}</select>
+        <div style="font-size:11px; color:#f59e0b; margin-top:5px;">🎯 Рекомендуемая: ${autoCategory}</div></td>
+        <td style="padding:12px; text-align:center;"><button class="btn btn-success" style="padding:8px 16px;" onclick="approve(${a.AppID}, ${a.UserID}, ${a.EntryFee})">✅ Подтвердить</button></td></tr>`;
+    }
+    document.getElementById('pendingBody').innerHTML = html;
+  } catch(e) { console.error(e); document.getElementById('pendingBody').innerHTML = '<tr><td colspan="3" style="text-align:center; color:#ef4444;">❌ Ошибка загрузки</td></tr>'; }
+}
+
+async function approve(appId, userId, fee) {
+  const category = document.getElementById(`cat-${appId}`).value;
+  try {
+    const res = await fetch('/api/organizer/pay', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ appId, userId, fee, category }) });
+    const result = await res.json();
+    if (result.success) { alert('✅ Подтверждено!'); loadPending(); loadConfirmed(); }
+    else alert('❌ Ошибка: ' + result.message);
+  } catch(e) { alert('Ошибка сервера'); }
+}
+
+async function modalCreateComp() {
+  const payload = {
+    title: document.getElementById('modalCTitle').value,
+    location: document.getElementById('modalCLoc').value,
+    eventDate: document.getElementById('modalCDate').value,
+    entryFee: parseFloat(document.getElementById('modalCFee').value) || 0,
+    categories: document.getElementById('modalCCats').value,
+    organizerId: getOrganizerId(),
+    level: 'Городские',
+    maxParticipants: 64,
+    status: 'Registration'
+  };
+  if (!payload.title || !payload.location || !payload.eventDate || !payload.categories) { alert('Заполните все поля'); return; }
+  try {
+    const res = await fetch('/api/competitions/create', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    const result = await res.json();
+    if (result.success) { alert('✅ Турнир создан!'); closeModal('createTournamentModal'); loadTournamentList(); }
+    else alert('❌ Ошибка: ' + result.message);
+  } catch(e) { alert('Ошибка сервера'); }
+}
+
+async function loadSettings() {
+  try {
+    const res = await fetch(`/api/organizer/competitions/${getOrganizerId()}`);
+    const comps = await res.json();
+    const container = document.getElementById('settingsList');
+    if (!comps.length) { container.innerHTML = '<div class="loading">Нет турниров</div>'; return; }
+    container.innerHTML = comps.map(c => {
+      let statusClass = '', statusText = '';
+      if (c.Status === 'Completed') { statusClass = 'status-completed'; statusText = '🏁 Завершен'; }
+      else if (c.Status === 'Active') { statusClass = 'status-active'; statusText = '⚔️ Активен'; }
+      else if (c.Status === 'Cancelled') { statusClass = 'status-cancelled'; statusText = '❌ Отменен'; }
+      else { statusClass = 'status-registration'; statusText = '📝 Регистрация'; }
+      let levelIcon = c.Level === 'Районные' ? '🏘️' : (c.Level === 'Городские' ? '🏙️' : (c.Level === 'Республиканские' ? '🇧🇾' : '🏆'));
+      return `<div class="tournament-settings-card" data-id="${c.CompID}">
+        <h4>${levelIcon} ${c.Title}</h4>
+        <div style="margin:8px 0;"><span style="color:#888;">📅 ${c.EventDate || 'Дата не указана'}</span><span style="color:#888; margin-left:15px;">📍 ${c.Location || 'Не указано'}</span></div>
+        <div style="margin:8px 0;"><span>💰 ${c.EntryFee || 0} BYN</span><span style="margin-left:15px;">👥 Макс: ${c.MaxParticipants || 64}</span><span style="margin-left:15px;">${levelIcon} ${c.Level || 'Городские'}</span></div>
+        <div style="margin:10px 0;"><span class="tournament-status ${statusClass}">${statusText}</span></div>
+        <div style="margin-top:15px; display:flex; gap:10px;">
+          <button class="btn btn-primary" style="padding:6px 12px; font-size:13px;" onclick="editTournament(${c.CompID})">✏️ Редактировать</button>
+          ${c.Status !== 'Completed' && c.Status !== 'Cancelled' ? `<button class="btn btn-danger" style="padding:6px 12px; font-size:13px;" onclick="cancelTournament(${c.CompID})">❌ Отменить</button>` : ''}
+          ${c.Status !== 'Completed' ? `<button class="btn btn-primary" style="padding:6px 12px; font-size:13px; background:#16a34a;" onclick="completeTournament(${c.CompID})">🏁 Завершить</button>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function editTournament(compId) {
+  try {
+    const res = await fetch(`/api/organizer/competitions/${getOrganizerId()}`);
+    const comps = await res.json();
+    const tournament = comps.find(c => c.CompID == compId);
+    if (!tournament) { alert('Турнир не найден'); return; }
+    document.getElementById('editCompId').value = tournament.CompID;
+    document.getElementById('editCompTitle').value = tournament.Title || '';
+    document.getElementById('editCompLocation').value = tournament.Location || '';
+    document.getElementById('editCompDate').value = tournament.EventDate || '';
+    document.getElementById('editCompFee').value = tournament.EntryFee || 0;
+    document.getElementById('editCompMaxParticipants').value = tournament.MaxParticipants || 64;
+    document.getElementById('editCompLevel').value = tournament.Level || 'Городские';
+    document.getElementById('editCompStatus').value = tournament.Status || 'Registration';
+    document.getElementById('editCompCategories').value = tournament.Categories || '';
+    document.getElementById('editTournamentModal').style.display = 'flex';
+  } catch(error) { console.error('Ошибка:', error); alert('Ошибка загрузки данных турнира'); }
+}
+
+async function saveTournamentEdit() {
+  const payload = {
+    compId: parseInt(document.getElementById('editCompId').value),
+    title: document.getElementById('editCompTitle').value,
+    location: document.getElementById('editCompLocation').value,
+    eventDate: document.getElementById('editCompDate').value,
+    entryFee: parseFloat(document.getElementById('editCompFee').value) || 0,
+    maxParticipants: parseInt(document.getElementById('editCompMaxParticipants').value) || 64,
+    level: document.getElementById('editCompLevel').value,
+    status: document.getElementById('editCompStatus').value,
+    categories: document.getElementById('editCompCategories').value
+  };
+  if (!payload.title || !payload.location || !payload.eventDate || !payload.categories) { alert('Заполните все обязательные поля!'); return; }
+  try {
+    const res = await fetch('/api/organizer/edit-competition', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    const result = await res.json();
+    if (result.success) { alert('✅ Турнир успешно обновлен!'); closeModal('editTournamentModal'); loadTournamentList(); loadSettings(); }
+    else alert('❌ Ошибка: ' + (result.message || 'Не удалось обновить'));
+  } catch(error) { console.error('Ошибка:', error); alert('❌ Ошибка сервера'); }
+}
+
+async function cancelTournament(compId) {
+  if (!confirm('⚠️ Отменить этот турнир? Участники будут уведомлены.')) return;
+  try {
+    const res = await fetch('/api/organizer/cancel-competition', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ compId }) });
+    const result = await res.json();
+    if (result.success) { alert('✅ Турнир отменен!'); loadSettings(); loadTournamentList(); }
+    else alert('❌ Ошибка: ' + result.message);
+  } catch(e) { console.error(e); alert('Ошибка сервера'); }
+}
+
+async function completeTournament(compId) {
+  if (!confirm('🏆 Завершить этот турнир? Он станет недоступен для новых заявок.')) return;
+  try {
+    const res = await fetch('/api/organizer/complete-competition', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ compId }) });
+    const result = await res.json();
+    if (result.success) { alert('✅ Турнир завершен!'); loadSettings(); loadTournamentList(); }
+    else alert('❌ Ошибка: ' + result.message);
+  } catch(e) { console.error(e); alert('Ошибка сервера'); }
+}
+
+async function saveProfile() {
+  const payload = {
+    userId: user.UserID,
+    fio: document.getElementById('editFio').value,
+    email: document.getElementById('editEmail').value,
+    phone: document.getElementById('editPhone').value,
+    weight: parseFloat(document.getElementById('editWeight').value),
+    birthDate: document.getElementById('editBirth').value,
+    rank: document.getElementById('editRank').value,
+    gender: document.getElementById('editGender').value,
+    password: document.getElementById('editPassword').value
+  };
+  try {
+    const res = await fetch('/api/user/update-full', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    if (res.ok) {
+      alert('✅ Профиль обновлён!');
+      user = { ...user, ...payload };
+      localStorage.setItem('user', JSON.stringify(user));
+      document.getElementById('dropdownUserName').innerText = user.FIO;
+      document.getElementById('profileAvatar').innerHTML = user.FIO.charAt(0).toUpperCase();
+      closeModal('profileModal');
+    } else alert('❌ Ошибка сохранения');
+  } catch(e) { alert('Ошибка сервера'); }
+}
+
+// ========== АРЕНА ==========
+function resetArenaState() {
+  currentCategoryIdx = 0; currentHandType = 'Левая';
+  document.getElementById('resultsLog').innerHTML = '';
+  document.getElementById('arenaPreStart').style.display = 'block';
+  document.getElementById('fightZone').style.display = 'none';
+}
+
+function updateRankingDisplay() {
+  const cat = sortedCategories[currentCategoryIdx];
+  if (!cat) return;
+  const athletes = Object.values(athleteStats).filter(a => a.Category === cat);
+  if (!athletes.length) { document.getElementById('rankingContainer').innerHTML = '<div class="loading">Нет участников</div>'; return; }
+  const wins = currentHandType === 'Левая' ? 'L_Wins' : 'R_Wins';
+  const sorted = [...athletes].sort((a,b) => b[wins] - a[wins]);
+  document.getElementById('rankingContainer').innerHTML = `<table class="ranking-table"><thead><tr><th>Место</th><th>Участник</th><th>Вес</th><th>Победы</th><th>Поражения</th></tr></thead><tbody>${sorted.map((a,i) => `<tr class="${i===0?'rank-1':''}"><td>${i+1}</td><td>${a.FIO} ${a.Gender==='Женский'?'👩':'👨'}</td><td>${a.Weight}кг</td><td style="color:#4ade80;">${a[wins]}</td><td style="color:#ef4444;">${currentHandType==='Левая'?a.L_Loss:a.R_Loss}</td></tr>`).join('')}</tbody></table>`;
+}
+
+function loadCategoryForCurrentHand() {
+  const cat = sortedCategories[currentCategoryIdx];
+  if (!cat) { finishTournament(); return; }
+  document.getElementById('arenaProgress').innerHTML = `<strong>📋 ${cat} | ${currentHandType} рука</strong> | Категория ${currentCategoryIdx+1}/${sortedCategories.length}`;
+  let athletes = Object.values(athleteStats).filter(a => a.Category === cat);
+  if (!athletes.length) {
+    alert(`⚠️ В категории ${cat} нет участников! Пропускаем.`);
+    if (currentHandType === 'Левая') currentHandType = 'Правая';
+    else { currentHandType = 'Левая'; currentCategoryIdx++; }
+    loadCategoryForCurrentHand(); return;
+  }
+  athletes.forEach(a => { if (currentHandType === 'Левая') { a.L_Wins=0; a.L_Loss=0; } else { a.R_Wins=0; a.R_Loss=0; } });
+  currentCategoryAthletes = [...athletes];
+  updateRankingDisplay();
+  prepareMatch();
+}
+
+function prepareMatch() {
+  const active = currentCategoryAthletes.filter(a => { let l = currentHandType === 'Левая' ? a.L_Loss : a.R_Loss; return l < 2; });
+  if (active.length < 2) { finishHand(); return; }
+  active.sort(() => Math.random() - 0.5);
+  currentPair = [active[0], active[1]];
+  document.getElementById('handLabel').innerHTML = `🤼 ${currentHandType} рука | ${sortedCategories[currentCategoryIdx]}`;
+  document.getElementById('f0Name').innerText = currentPair[0].FIO;
+  document.getElementById('f1Name').innerText = currentPair[1].FIO;
+  document.getElementById('f0Losses').innerHTML = `📉 Поражений: ${currentHandType === 'Левая' ? currentPair[0].L_Loss : currentPair[0].R_Loss}/2`;
+  document.getElementById('f1Losses').innerHTML = `📉 Поражений: ${currentHandType === 'Левая' ? currentPair[1].L_Loss : currentPair[1].R_Loss}/2`;
+  document.getElementById('fightBtn').style.display = 'inline-block';
+  document.getElementById('nextMatchBtn').style.display = 'none';
+}
+
+function runBattle() {
+  const winIdx = Math.random() > 0.5 ? 0 : 1;
+  const loseIdx = winIdx === 0 ? 1 : 0;
+  const winner = currentPair[winIdx];
+  const loser = currentPair[loseIdx];
+  if (currentHandType === 'Левая') { winner.L_Wins++; loser.L_Loss++; }
+  else { winner.R_Wins++; loser.R_Loss++; }
+  document.getElementById(`card${winIdx}`).classList.add('winner');
+  document.getElementById(`card${loseIdx}`).classList.add('loser');
+  document.getElementById('fightBtn').style.display = 'none';
+  document.getElementById('nextMatchBtn').style.display = 'inline-block';
+  document.getElementById('resultsLog').insertAdjacentHTML('afterbegin', `<tr class="win-row"><td><b>${winner.FIO}</b> 🏆<\/td><td>VS<\/td><td>${loser.FIO}<\/td><td>${currentHandType}<\/td><\/tr>`);
+  updateRankingDisplay();
+}
+
+function nextMatch() { prepareMatch(); }
+
+function finishHand() {
+  const cat = sortedCategories[currentCategoryIdx];
+  tournamentFinalResults[cat][currentHandType] = [...Object.values(athleteStats).filter(a => a.Category === cat)].sort((a,b) => (currentHandType==='Левая'?b.L_Wins:b.R_Wins) - (currentHandType==='Левая'?a.L_Wins:a.R_Wins));
+  if (currentHandType === 'Левая') { 
+    currentHandType = 'Правая'; 
+    alert(`✅ Левая рука завершена! Переходим к Правой.`); 
+    loadCategoryForCurrentHand(); 
+  } else { 
+    currentHandType = 'Левая'; 
+    currentCategoryIdx++; 
+    if (currentCategoryIdx < sortedCategories.length) { 
+      alert(`✅ Переходим к следующей категории.`); 
+      loadCategoryForCurrentHand(); 
+    } else { 
+      finishTournament(); 
+    } 
+  }
+}
+
+// ========== СОХРАНЕНИЕ РЕЗУЛЬТАТОВ В БД (ВСЕ УЧАСТНИКИ) ==========
+async function saveResultsToDatabase() {
+    const compId = document.getElementById('mainCompSelector').value;
+    if (!compId) {
+        console.error('ID турнира не найден');
+        return false;
+    }
+
+    const resultsToSave = [];
+    
+    for (let category of sortedCategories) {
+        const leftResults = tournamentFinalResults[category]?.Левая || [];
+        const rightResults = tournamentFinalResults[category]?.Правая || [];
+        
+        // Собираем ВСЕХ участников категории (уникальные UserID)
+        const allAthletes = {};
+        
+        // Добавляем участников из левой руки
+        leftResults.forEach(a => {
+            if (!allAthletes[a.UserID]) {
+                allAthletes[a.UserID] = {
+                    UserID: a.UserID,
+                    FIO: a.FIO,
+                    Category: category,
+                    WinsLeft: 0,
+                    WinsRight: 0,
+                    LossesLeft: 0,
+                    LossesRight: 0
+                };
+            }
+            allAthletes[a.UserID].WinsLeft = a.L_Wins;
+            allAthletes[a.UserID].LossesLeft = a.L_Loss;
+        });
+        
+        // Добавляем участников из правой руки
+        rightResults.forEach(a => {
+            if (!allAthletes[a.UserID]) {
+                allAthletes[a.UserID] = {
+                    UserID: a.UserID,
+                    FIO: a.FIO,
+                    Category: category,
+                    WinsLeft: 0,
+                    WinsRight: 0,
+                    LossesLeft: 0,
+                    LossesRight: 0
+                };
+            }
+            allAthletes[a.UserID].WinsRight = a.R_Wins;
+            allAthletes[a.UserID].LossesRight = a.R_Loss;
+        });
+        
+        // Добавляем ВСЕХ участников в массив для сохранения
+        Object.values(allAthletes).forEach(athlete => {
+            resultsToSave.push({
+                compId: parseInt(compId),
+                category: athlete.Category,
+                userId: athlete.UserID,
+                fio: athlete.FIO,
+                winsLeft: athlete.WinsLeft,
+                winsRight: athlete.WinsRight,
+                lossesLeft: athlete.LossesLeft,
+                lossesRight: athlete.LossesRight
+            });
+        });
+    }
+
+    if (resultsToSave.length === 0) {
+        console.warn('Нет результатов для сохранения');
+        alert('⚠️ Нет результатов для сохранения');
+        return false;
+    }
+
+    console.log('📤 Отправка результатов на сервер:', resultsToSave.length, 'записей');
+
+    try {
+        const response = await fetch('/api/save-protocol', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ results: resultsToSave })
+        });
+        
+        if (!response.ok) {
+            const text = await response.text();
+            console.error('Ответ сервера (не JSON):', text.substring(0, 200));
+            throw new Error(`HTTP ${response.status}: ${text.substring(0, 100)}`);
+        }
+        
+        const result = await response.json();
+        if (result.success) {
+            console.log('✅ Результаты сохранены в БД');
+            alert(`✅ Результаты сохранены в протокол! (${resultsToSave.length} записей)`);
+            return true;
+        } else {
+            console.error('❌ Ошибка сохранения:', result.message);
+            alert('❌ Ошибка сохранения: ' + result.message);
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Ошибка сети при сохранении:', error);
+        alert('❌ Ошибка при сохранении. Проверьте консоль.');
+        return false;
+    }
+}
+
+
+// ========== ЗАВЕРШЕНИЕ ТУРНИРА ==========
+async function finishTournament() {
+    alert('🏆 ТУРНИР ЗАВЕРШЁН!');
+    
+    const saved = await saveResultsToDatabase();
+    
+    const compId = document.getElementById('mainCompSelector').value;
+    
+    try { 
+        await fetch('/api/organizer/complete-competition', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ compId }) 
+        }); 
+    } catch(e){ console.error(e); }
+    
+    const sel = document.getElementById('mainCompSelector');
+    const selectedOption = sel.selectedOptions[0];
+    if (selectedOption) {
+        selectedOption.setAttribute('data-status', 'Completed');
+    }
+    const startBtn = document.getElementById('startArenaBtn');
+    if (startBtn) {
+        startBtn.disabled = true;
+        startBtn.style.opacity = '0.5';
+    }
+    
+    showProtocolModal();
+    resetArenaState();
+}
+
+function showProtocolModal() {
+    const protocolDiv = document.getElementById('protocolContent');
+    if (!protocolDiv) return;
+    
+    let html = '';
+    
+    for (let cat of sortedCategories) {
+        const leftResults = tournamentFinalResults[cat]?.Левая || [];
+        const rightResults = tournamentFinalResults[cat]?.Правая || [];
+        
+        if (leftResults.length === 0 && rightResults.length === 0) continue;
+        
+        html += `<div class="protocol-category">
+            <h4>📌 ${cat}</h4>`;
+        
+        // Левая рука
+        if (leftResults.length > 0) {
+            html += `<div class="protocol-hand">
+                <h5>🤚 Левая рука</h5>
+                <table class="protocol-table">
+                    <thead>
+                        <tr><th>Место</th><th>Участник</th><th>Вес</th><th>Победы</th><th>Поражения</th></tr>
+                    </thead>
+                    <tbody>`;
+            leftResults.forEach((a, idx) => {
+                let medal = '';
+                if (idx === 0) medal = '🥇 ';
+                else if (idx === 1) medal = '🥈 ';
+                else if (idx === 2) medal = '🥉 ';
+                html += `<tr>
+                    <td>${medal}${idx + 1}</td>
+                    <td><b>${a.FIO}</b> ${a.Gender === 'Женский' ? '👩' : '👨'}</td>
+                    <td>${a.Weight}кг</td>
+                    <td style="color:#4ade80;">${a.L_Wins}</td>
+                    <td style="color:#ef4444;">${a.L_Loss}</td>
+                </tr>`;
+            });
+            html += `</tbody>
+                </table>
+            </div>`;
+        }
+        
+        // Правая рука
+        if (rightResults.length > 0) {
+            html += `<div class="protocol-hand">
+                <h5>🤚 Правая рука</h5>
+                <table class="protocol-table">
+                    <thead>
+                        <tr><th>Место</th><th>Участник</th><th>Вес</th><th>Победы</th><th>Поражения</th></tr>
+                    </thead>
+                    <tbody>`;
+            rightResults.forEach((a, idx) => {
+                let medal = '';
+                if (idx === 0) medal = '🥇 ';
+                else if (idx === 1) medal = '🥈 ';
+                else if (idx === 2) medal = '🥉 ';
+                html += `<tr>
+                    <td>${medal}${idx + 1}</td>
+                    <td><b>${a.FIO}</b> ${a.Gender === 'Женский' ? '👩' : '👨'}</td>
+                    <td>${a.Weight}кг</td>
+                    <td style="color:#4ade80;">${a.R_Wins}</td>
+                    <td style="color:#ef4444;">${a.R_Loss}</td>
+                </tr>`;
+            });
+            html += `</tbody>
+                </table>
+            </div>`;
+        }
+        
+        html += `</div>`;
+    }
+    
+    if (html === '') {
+        html = '<div class="loading">Нет данных для отображения</div>';
+    }
+    
+    protocolDiv.innerHTML = html;
+    document.getElementById('protocolModal').style.display = 'flex';
+}
+
+
+function downloadProtocolPDF() {
+    // Получаем данные турнира
+    const compId = document.getElementById('mainCompSelector').value;
+    const compName = document.getElementById('mainCompSelector').selectedOptions[0]?.text || 'Турнир';
+    const currentDate = new Date().toLocaleString('ru-RU');
+    
+    // Проверяем, есть ли данные
+    let hasData = false;
+    for (let cat of sortedCategories) {
+        if (tournamentFinalResults[cat]?.Левая?.length > 0 || tournamentFinalResults[cat]?.Правая?.length > 0) {
+            hasData = true;
+            break;
+        }
+    }
+    
+    if (!hasData) {
+        alert('❌ Нет данных для формирования протокола!');
+        return;
+    }
+    
+    // Собираем HTML для PDF
+    let html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Протокол соревнований</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                    padding: 20px;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 30px;
+                    border-bottom: 2px solid #000;
+                    padding-bottom: 10px;
+                }
+                .header h1 {
+                    font-size: 20px;
+                    margin-bottom: 5px;
+                }
+                .header p {
+                    font-size: 12px;
+                    color: #555;
+                    margin: 5px 0;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 25px;
+                }
+                th, td {
+                    border: 1px solid #000;
+                    padding: 8px;
+                    text-align: left;
+                    font-size: 11px;
+                }
+                th {
+                    background-color: #e0e0e0;
+                    font-weight: bold;
+                }
+                .category-row {
+                    background-color: #d0d0d0;
+                }
+                .category-row th {
+                    background-color: #c0c0c0;
+                    font-size: 14px;
+                    text-align: center;
+                }
+                .hand-row {
+                    background-color: #e8e8e8;
+                }
+                .hand-row th {
+                    background-color: #d8d8d8;
+                    text-align: center;
+                }
+                .footer {
+                    margin-top: 30px;
+                    font-size: 10px;
+                    text-align: center;
+                    color: #666;
+                    border-top: 1px solid #ccc;
+                    padding-top: 10px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>ПРОТОКОЛ СОРЕВНОВАНИЙ</h1>
+                <p><strong>${compName}</strong></p>
+                <p>Дата формирования: ${currentDate}</p>
+            </div>
+    `;
+    
+    // Проходим по всем категориям
+    for (let cat of sortedCategories) {
+        const leftResults = tournamentFinalResults[cat]?.Левая || [];
+        const rightResults = tournamentFinalResults[cat]?.Правая || [];
+        
+        if (leftResults.length === 0 && rightResults.length === 0) continue;
+        
+        // Заголовок категории
+        html += `<table>`;
+        html += `<tr class="category-row"><th colspan="5">${cat}</th></tr>`;
+        
+        // Левая рука
+        if (leftResults.length > 0) {
+            html += `<tr class="hand-row"><th colspan="5">Левая рука</th></tr>`;
+            html += `<tr>
+                <th style="width:15%">Место</th>
+                <th style="width:40%">Участник</th>
+                <th style="width:15%">Вес (кг)</th>
+                <th style="width:15%">Победы</th>
+                <th style="width:15%">Поражения</th>
+            </tr>`;
+            
+            leftResults.forEach((a, idx) => {
+                html += `<tr>
+                    <td style="text-align:center">${idx + 1}</td>
+                    <td>${a.FIO}</td>
+                    <td style="text-align:center">${a.Weight}</td>
+                    <td style="text-align:center">${a.L_Wins}</td>
+                    <td style="text-align:center">${a.L_Loss}</td>
+                </tr>`;
+            });
+        }
+        
+        // Правая рука
+        if (rightResults.length > 0) {
+            html += `<tr class="hand-row"><th colspan="5">Правая рука</th></tr>`;
+            html += `<tr>
+                <th>Место</th>
+                <th>Участник</th>
+                <th>Вес (кг)</th>
+                <th>Победы</th>
+                <th>Поражения</th>
+            </tr>`;
+            
+            rightResults.forEach((a, idx) => {
+                html += `<tr>
+                    <td style="text-align:center">${idx + 1}</td>
+                    <td>${a.FIO}</td>
+                    <td style="text-align:center">${a.Weight}</td>
+                    <td style="text-align:center">${a.R_Wins}</td>
+                    <td style="text-align:center">${a.R_Loss}</td>
+                </tr>`;
+            });
+        }
+        
+        html += `</table>`;
+    }
+    
+    html += `
+            <div class="footer">
+                <p>Протокол сгенерирован автоматически в системе ARM SYSTEM PRO</p>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    // Создаем iframe для генерации PDF (более надежный способ)
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.left = '-9999px';
+    iframe.style.top = '-9999px';
+    document.body.appendChild(iframe);
+    
+    iframe.contentWindow.document.open();
+    iframe.contentWindow.document.write(html);
+    iframe.contentWindow.document.close();
+    
+    // Ждем загрузки содержимого
+    setTimeout(() => {
+        const opt = {
+            margin: [10, 10, 10, 10],
+            filename: `protocol_${compId}_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        
+        html2pdf().set(opt).from(iframe.contentWindow.document.body).save().then(() => {
+            document.body.removeChild(iframe);
+        }).catch(err => {
+            console.error('Ошибка PDF:', err);
+            alert('Ошибка при создании PDF');
+            document.body.removeChild(iframe);
+        });
+    }, 500);
+}
+
+
+async function startArena() {
+  const sel = document.getElementById('mainCompSelector');
+  const status = sel.selectedOptions[0]?.getAttribute('data-status');
+  if (status === 'Completed') { alert('❌ Этот турнир уже завершен!'); return; }
+  if (sortedCategories.length === 0) { alert('❌ Нет категорий для проведения турнира!'); return; }
+  let hasParticipants = false;
+  for (let cat of sortedCategories) { if (Object.values(athleteStats).filter(a => a.Category === cat).length > 0) { hasParticipants = true; break; } }
+  if (!hasParticipants) { alert('❌ Нет участников! Сначала подтвердите заявки.'); return; }
+  Object.keys(athleteStats).forEach(key => { athleteStats[key].L_Wins=0; athleteStats[key].L_Loss=0; athleteStats[key].R_Wins=0; athleteStats[key].R_Loss=0; });
+  currentCategoryIdx = 0; currentHandType = 'Левая';
+  document.getElementById('resultsLog').innerHTML = '';
+  sortedCategories.forEach(cat => { tournamentFinalResults[cat] = { Левая: [], Правая: [] }; });
+  document.getElementById('arenaPreStart').style.display = 'none';
+  document.getElementById('fightZone').style.display = 'block';
+  loadCategoryForCurrentHand();
+}
+
+async function loadProfile() {
+  try {
+    const res = await fetch(`/api/user/profile/${user.UserID}`);
+    const data = await res.json();
+    if (data.success) {
+      user = data.user;
+      localStorage.setItem('user', JSON.stringify(user));
+      document.getElementById('dropdownUserName').innerText = user.FIO || 'Организатор';
+      document.getElementById('profileAvatar').innerHTML = user.FIO ? user.FIO.charAt(0).toUpperCase() : '👤';
+    }
+  } catch(e) { console.error(e); }
+}
+
+function loadOrganizerName() {
+  document.getElementById('dropdownUserName').innerText = user.FIO || 'Организатор';
+  document.getElementById('profileAvatar').innerHTML = user.FIO ? user.FIO.charAt(0).toUpperCase() : '👤';
+}
+
+async function loadOrganizerInfo() {
+  try {
+    const res = await fetch(`/api/user/profile/${getOrganizerId()}`);
+    const data = await res.json();
+    if(data.success && data.user) {
+      const orgField = document.getElementById('cOrganizer');
+      if (orgField) orgField.value = data.user.FIO || 'Организатор';
+    }
+  } catch(e) { console.error(e); }
+}
+
+// Инициализация
+loadTournamentList();
+loadProfile();
+loadOrganizerInfo();
+loadPending();
+loadOrganizerName();
+</script>
+</body>
+</html>
