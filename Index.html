@@ -171,7 +171,7 @@
       margin-bottom: 16px;
     }
     .feature-card p {
-      color: #999;
+      color: #b0b0b0;
       line-height: 1.5;
     }
 
@@ -180,7 +180,7 @@
     }
     .tournaments-subtitle {
       text-align: center;
-      color: #999;
+      color: #b0b0b0;
       margin-bottom: 48px;
     }
     .tournaments-grid {
@@ -227,7 +227,7 @@
       margin-bottom: 12px;
     }
     .tournament-info {
-      color: #999;
+      color: #b0b0b0;
       font-size: 14px;
       margin: 8px 0;
     }
@@ -281,7 +281,7 @@
     }
     .organizer-content p {
       font-size: 18px;
-      color: #ccc;
+      color: #d5d5d5;
       margin-bottom: 30px;
     }
     .btn-organizer {
@@ -319,7 +319,7 @@
       margin-bottom: 8px;
     }
     .footer-desc {
-      color: #999;
+      color: #b0b0b0;
       font-size: 14px;
     }
     .footer-title {
@@ -330,7 +330,7 @@
       list-style: none;
     }
     .footer-links li {
-      color: #999;
+      color: #b0b0b0;
       margin: 8px 0;
       cursor: pointer;
       font-size: 14px;
@@ -497,15 +497,15 @@
     <h2 class="section-title">Возможности</h2>
     <div class="features-grid">
       <div class="feature-card">
-        <h3>🏆 Участие в турнирах</h3>
+        <h3> Участие в турнирах</h3>
         <p>Регистрируйся на соревнования любого уровня — от локальных чемпионатов до международных турниров</p>
       </div>
       <div class="feature-card">
-        <h3>📊 Рейтинг и статистика</h3>
+        <h3> Рейтинг и статистика</h3>
         <p>Отслеживай свои победы, анализируй прогресс и следи за своим местом в общем рейтинге</p>
       </div>
       <div class="feature-card">
-        <h3>🛠 Организация турниров</h3>
+        <h3> Организация турниров</h3>
         <p>Создавай свои соревнования, управляй участниками и проводи турниры на профессиональном уровне</p>
       </div>
     </div>
@@ -549,7 +549,7 @@
   <div id="loginModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>🔐 Вход</h2>
+        <h2> Вход</h2>
         <span class="close-modal" onclick="closeLoginModal()">&times;</span>
       </div>
       <div class="form-group">
@@ -574,7 +574,7 @@
   <div id="registerModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>📝 Регистрация</h2>
+        <h2> Регистрация</h2>
         <span class="close-modal" onclick="closeRegisterModal()">&times;</span>
       </div>
       <div class="form-group">
@@ -646,7 +646,7 @@
   <div id="organizerRequestModal" class="modal">
     <div class="modal-content" style="max-width: 500px;">
       <div class="modal-header">
-        <h2>🤝 Стать организатором</h2>
+        <h2> Стать организатором</h2>
         <span class="close-modal" onclick="closeOrganizerModal()">&times;</span>
       </div>
       <div class="form-group">
@@ -719,10 +719,14 @@
 
     // ===== ВХОД =====
     async function login() {
-      const email = document.getElementById('loginEmail').value;
+      const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value;
       if (!email || !password) {
         alert('Заполните все поля');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Введите корректный email');
         return;
       }
       try {
@@ -746,9 +750,47 @@
     }
 
     // ===== РЕГИСТРАЦИЯ =====
+    let isRegistering = false;
     async function register() {
+      if (isRegistering) return;
+      const fio = document.getElementById('regFio').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      const birthDate = document.getElementById('regBirth').value;
+      const weightVal = document.getElementById('regWeight').value;
+      const rank = document.getElementById('regRank').value;
+      const gender = document.getElementById('regGender').value;
       const password = document.getElementById('regPassword').value;
       const confirm = document.getElementById('regPasswordConfirm').value;
+
+      if (!fio || !email || !birthDate || !weightVal || !password || !confirm) {
+        alert('Заполните все обязательные поля (отмечены *)');
+        return;
+      }
+      if (fio.length < 5 || fio.split(' ').length < 2) {
+        alert('Введите полное ФИО (минимум Имя и Фамилия)');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Введите корректный email');
+        return;
+      }
+      if (phone && !/^\+?[0-9\s\-\(\)]{7,20}$/.test(phone)) {
+        alert('Введите корректный номер телефона');
+        return;
+      }
+      const weight = parseFloat(weightVal);
+      if (isNaN(weight) || weight < 30 || weight > 300) {
+        alert('Введите корректный вес (30-300 кг)');
+        return;
+      }
+      const birth = new Date(birthDate);
+      const now = new Date();
+      const age = (now - birth) / (365.25 * 24 * 60 * 60 * 1000);
+      if (age < 5 || age > 100) {
+        alert('Введите корректную дату рождения');
+        return;
+      }
       if (password !== confirm) {
         alert('Пароли не совпадают');
         return;
@@ -757,20 +799,8 @@
         alert('Пароль должен быть не менее 4 символов');
         return;
       }
-      const data = {
-        fio: document.getElementById('regFio').value,
-        email: document.getElementById('regEmail').value,
-        phone: document.getElementById('regPhone').value,
-        birthDate: document.getElementById('regBirth').value,
-        weight: parseFloat(document.getElementById('regWeight').value),
-        rank: document.getElementById('regRank').value,
-        gender: document.getElementById('regGender').value,
-        password: password
-      };
-      if (!data.fio || !data.email || !data.birthDate || !data.weight || !data.password) {
-        alert('Заполните все обязательные поля');
-        return;
-      }
+      const data = { fio, email, phone, birthDate, weight, rank, gender, password };
+      isRegistering = true;
       try {
         const res = await fetch('/api/register', {
           method: 'POST',
@@ -779,30 +809,48 @@
         });
         const result = await res.json();
         if (result.success) {
-          alert('✅ Регистрация успешна! Теперь войдите.');
+          alert('  Регистрация успешна! Теперь войдите.');
           closeRegisterModal();
           openLoginModal();
         } else {
-          alert('❌ Ошибка: ' + result.message);
+          alert('   Ошибка: ' + (result.message || 'Неизвестная ошибка'));
         }
       } catch(e) {
         alert('Ошибка сервера');
+      } finally {
+        isRegistering = false;
       }
     }
 
     // ===== ЗАЯВКА НА ОРГАНИЗАТОРА (БЕЗ АВТОРИЗАЦИИ) =====
     async function sendOrganizerRequest() {
-      const data = {
-        fio: document.getElementById('orgFio').value,
-        email: document.getElementById('orgEmail').value,
-        phone: document.getElementById('orgPhone').value,
-        password: document.getElementById('orgPassword').value,
-        message: document.getElementById('orgMessage').value
-      };
-      if (!data.fio || !data.email || !data.phone || !data.password) {
-        alert('Заполните все обязательные поля');
+      const fio = document.getElementById('orgFio').value.trim();
+      const email = document.getElementById('orgEmail').value.trim();
+      const phone = document.getElementById('orgPhone').value.trim();
+      const password = document.getElementById('orgPassword').value;
+      const message = document.getElementById('orgMessage').value.trim();
+
+      if (!fio || !email || !phone || !password) {
+        alert('Заполните все обязательные поля (отмечены *)');
         return;
       }
+      if (fio.length < 5 || fio.split(' ').length < 2) {
+        alert('Введите полное ФИО (минимум Имя и Фамилия)');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Введите корректный email');
+        return;
+      }
+      if (!/^\+?[0-9\s\-\(\)]{7,20}$/.test(phone)) {
+        alert('Введите корректный номер телефона');
+        return;
+      }
+      if (password.length < 4) {
+        alert('Пароль должен быть не менее 4 символов');
+        return;
+      }
+      const data = { fio, email, phone, password, message };
       try {
         const res = await fetch('/api/organizer/request', {
           method: 'POST',
@@ -811,7 +859,7 @@
         });
         const result = await res.json();
         if (result.success) {
-          alert('✅ Заявка отправлена! На вашу почту придет подтверждение.');
+          alert('  Заявка отправлена! На вашу почту придет подтверждение.');
           closeOrganizerModal();
           document.getElementById('orgFio').value = '';
           document.getElementById('orgEmail').value = '';
@@ -819,7 +867,7 @@
           document.getElementById('orgPassword').value = '';
           document.getElementById('orgMessage').value = '';
         } else {
-          alert('❌ Ошибка: ' + result.message);
+          alert('   Ошибка: ' + result.message);
         }
       } catch(e) {
         alert('Ошибка сервера');
@@ -846,10 +894,9 @@
             </div>
             <div class="tournament-content">
               <div class="tournament-title">${escapeHtml(t.Title) || 'Без названия'}</div>
-              <div class="tournament-info">📅 ${t.EventDate || 'Дата не указана'}</div>
+              <div class="tournament-info">📅 ${t.EventDate ? formatDate(t.EventDate) : 'Дата не указана'}</div>
               <div class="tournament-info">📍 ${t.Location || 'Место не указано'}</div>
               <div class="tournament-info">🏆 Уровень: ${t.Level || 'Городские'}</div>
-              <div class="tournament-price">💰 ${t.EntryFee || 0} BYN</div>
               <button class="btn-details apply-btn" data-id="${t.CompID}">Подробнее</button>
             </div>
           `;
@@ -863,8 +910,21 @@
         });
       } catch(e) {
         console.error(e);
-        container.innerHTML = '<div class="loading">❌ Ошибка загрузки турниров</div>';
+        container.innerHTML = '<div class="loading">   Ошибка загрузки турниров</div>';
       }
+    }
+
+    // Форматирование даты в русский формат DD.MM.YYYY
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const parts = dateStr.split('.');
+      if (parts.length === 3) return dateStr; // уже в формате DD.MM.YYYY
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}.${month}.${year}`;
     }
 
     // Простая защита от XSS

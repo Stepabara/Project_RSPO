@@ -21,7 +21,6 @@ db.serialize(() => {
         Phone TEXT,
         BirthDate TEXT,
         Weight REAL DEFAULT 0,
-        Balance REAL DEFAULT 0,
         SkillLevel INTEGER DEFAULT 1,
         Rank TEXT DEFAULT 'Б/Р',
         Gender TEXT DEFAULT 'Мужской',
@@ -40,7 +39,6 @@ db.serialize(() => {
         OrganizerFIO TEXT NOT NULL,
         Location TEXT,
         EventDate TEXT,
-        EntryFee REAL DEFAULT 0,
         Status TEXT DEFAULT 'Registration',
         Categories TEXT DEFAULT 'Общая',
         MaxParticipants INTEGER DEFAULT 64,
@@ -102,20 +100,6 @@ db.serialize(() => {
         FOREIGN KEY (UserID) REFERENCES Users(UserID)
     )`);
 
-    // ========================================
-    // 6. ЛОГИ ОПЕРАЦИЙ
-    // ========================================
-    db.run(`CREATE TABLE IF NOT EXISTS BalanceLogs (
-        LogID INTEGER PRIMARY KEY AUTOINCREMENT,
-        UserID INTEGER,
-        CompID INTEGER,
-        Amount REAL,
-        Type TEXT,
-        Description TEXT,
-        CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (UserID) REFERENCES Users(UserID),
-        FOREIGN KEY (CompID) REFERENCES Competitions(CompID)
-    )`);
 
     // ========================================
     // МИГРАЦИЯ: Добавляем поле Gender если его нет
@@ -162,8 +146,8 @@ db.serialize(() => {
     
     db.get("SELECT * FROM Users WHERE Email = ?", [adminEmail], (err, row) => {
         if (!row) {
-            db.run(`INSERT INTO Users (FIO, Password, Role, Balance, Email) 
-                   VALUES (?, ?, 'Admin', 999, ?)`, [adminFio, adminPass, adminEmail]);
+            db.run(`INSERT INTO Users (FIO, Password, Role, Email)
+                   VALUES (?, ?, 'Admin', ?)`, [adminFio, adminPass, adminEmail]);
             console.log(`✅ Создан администратор: ${adminEmail} / ${adminPass}`);
         }
     });
@@ -171,8 +155,8 @@ db.serialize(() => {
     // Тестовый организатор (пол не указываем)
     db.get("SELECT * FROM Users WHERE Email = ?", ['org@test.by'], (err, row) => {
         if (!row) {
-            db.run(`INSERT INTO Users (FIO, Password, Role, Email, Balance, Phone, Rank, Weight) 
-                   VALUES ('Организатор Test', '123', 'Organizer', 'org@test.by', 500, '+375291234567', 'МС', 85)`);
+            db.run(`INSERT INTO Users (FIO, Password, Role, Email, Phone, Rank, Weight)
+                   VALUES ('Организатор Test', '123', 'Organizer', 'org@test.by', '+375291234567', 'МС', 85)`);
             console.log("✅ Создан тестовый организатор: org@test.by / 123");
         }
     });
@@ -189,8 +173,8 @@ db.serialize(() => {
     testAthletes.forEach((athlete) => {
         db.get("SELECT * FROM Users WHERE Email = ?", [athlete.email], (err, row) => {
             if (!row) {
-                db.run(`INSERT INTO Users (FIO, Password, Weight, Rank, Role, Balance, Email, Phone, Gender) 
-                       VALUES (?, '123', ?, ?, 'User', 200, ?, ?, ?)`, 
+                db.run(`INSERT INTO Users (FIO, Password, Weight, Rank, Role, Email, Phone, Gender)
+                       VALUES (?, '123', ?, ?, 'User', ?, ?, ?)`,
                     [athlete.fio, athlete.weight, athlete.rank, athlete.email, athlete.phone, athlete.gender]);
                 console.log(`✅ Создан тестовый атлет: ${athlete.fio} (${athlete.gender})`);
             }
@@ -198,7 +182,7 @@ db.serialize(() => {
     });
 
     console.log("✅ База данных ARM BY полностью инициализирована!");
-    console.log("📊 Таблицы: Users, Competitions, Applications, OrganizerRequests, Protocols, BalanceLogs");
+    console.log("📊 Таблицы: Users, Competitions, Applications, OrganizerRequests, Protocols");
     console.log("🏆 Уровни соревнований: Районные (1), Городские (2), Республиканские (3)");
     console.log("👥 Пользователи теперь имеют поле Gender (Мужской/Женский)");
 });

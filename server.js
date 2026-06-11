@@ -50,6 +50,9 @@ app.post('/api/register', (req, res) => {
     const { fio, email, phone, password, weight, birthDate, rank, gender } = req.body;
     
     db.get("SELECT * FROM Users WHERE Email = ?", [email], (err, existing) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: 'Ошибка базы данных' });
+        }
         if (existing) {
             return res.status(400).json({ success: false, message: 'Пользователь с таким email уже существует' });
         }
@@ -57,7 +60,6 @@ app.post('/api/register', (req, res) => {
         const finalRank = rank || 'Б/Р';
         const finalGender = gender || 'Мужской';
         const role = 'User';
-        const defaultBalance = 100;
 
         let skill = 0;
         if (finalRank === 'МСМК') skill = 95 + Math.floor(Math.random() * 6);
@@ -66,10 +68,10 @@ app.post('/api/register', (req, res) => {
         else if (finalRank === '1 разряд') skill = 50 + Math.floor(Math.random() * 20);
         else skill = 10 + Math.floor(Math.random() * 35);
 
-        const sql = `INSERT INTO Users (FIO, Email, Phone, Password, Weight, BirthDate, Role, Rank, Balance, SkillLevel, Gender) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        
-        db.run(sql, [fio, email, phone, password, weight, birthDate, role, finalRank, defaultBalance, skill, finalGender], async function(err) {
+        const sql = `INSERT INTO Users (FIO, Email, Phone, Password, Weight, BirthDate, Role, Rank, SkillLevel, Gender)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+        db.run(sql, [fio, email, phone, password, weight, birthDate, role, finalRank, skill, finalGender], async function(err) {
             if (err) {
                 console.error("Ошибка регистрации:", err.message);
                 return res.status(500).json({ success: false, message: err.message });
@@ -93,7 +95,7 @@ app.post('/api/register', (req, res) => {
 
 app.get('/api/user/profile/:id', (req, res) => {
     const userId = req.params.id;
-    db.get("SELECT UserID, FIO, Email, Phone, Role, Weight, Balance, BirthDate, Rank, SkillLevel, Gender FROM Users WHERE UserID = ?", [userId], (err, row) => {
+    db.get("SELECT UserID, FIO, Email, Phone, Role, Weight, BirthDate, Rank, SkillLevel, Gender FROM Users WHERE UserID = ?", [userId], (err, row) => {
         if (err || !row) return res.status(404).json({ success: false });
         res.json({ success: true, user: row });
     });
@@ -115,29 +117,16 @@ app.post('/api/user/update-full', (req, res) => {
     });
 });
 
-app.post('/api/user/add-balance', (req, res) => {
-    const { userId, amount } = req.body;
-    if (!amount || amount <= 0) return res.status(400).json({ success: false });
-    db.run("UPDATE Users SET Balance = Balance + ? WHERE UserID = ?", [amount, userId], (err) => {
-        if (err) return res.status(500).json({ success: false });
-        res.json({ success: true });
-    });
-});
-
 app.post('/api/apply', (req, res) => {
     const { userId, compId } = req.body;
-    
+
     db.get(`
-        SELECT u.FIO, u.Email, u.Balance, u.Gender, u.Weight, c.Title, c.EntryFee, c.Categories
-        FROM Users u, Competitions c 
+        SELECT u.FIO, u.Email, u.Gender, u.Weight, c.Title, c.Categories
+        FROM Users u, Competitions c
         WHERE u.UserID = ? AND c.CompID = ?
     `, [userId, compId], (err, data) => {
         if (err || !data) return res.status(404).json({ success: false, message: "Данные не найдены" });
-        
-        if (data.Balance < data.EntryFee) {
-            return res.json({ success: false, message: "Недостаточно средств на балансе" });
-        }
-        
+
         // Автоматическое определение категории по весу и полу
         let autoCategory = '';
         const categories = data.Categories ? data.Categories.split(',').map(c => c.trim()) : [];
@@ -198,7 +187,7 @@ app.post('/api/apply', (req, res) => {
 // ==========================================
 
 app.get('/api/admin/users', (req, res) => {
-    const sql = `SELECT UserID, FIO, Email, Phone, Weight, Rank, Role, Password, BirthDate, SkillLevel, Balance, Gender FROM Users`;
+    const sql = `SELECT UserID, FIO, Email, Phone, Weight, Rank, Role, Password, BirthDate, SkillLevel, Gender FROM Users`;
     db.all(sql, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
@@ -214,15 +203,15 @@ app.post('/api/admin/update-role', (req, res) => {
 });
 
 app.post('/api/admin/update-user-full', (req, res) => {
-    const { userId, fio, weight, rank, role, email, phone, birthDate, skillLevel, balance, password, gender } = req.body;
-    
+    const { userId, fio, weight, rank, role, email, phone, birthDate, skillLevel, password, gender } = req.body;
+
     let sql, params;
     if (password) {
-        sql = `UPDATE Users SET FIO=?, Weight=?, Rank=?, Role=?, Email=?, Phone=?, BirthDate=?, SkillLevel=?, Balance=?, Password=?, Gender=? WHERE UserID=?`;
-        params = [fio, weight, rank, role, email, phone, birthDate, skillLevel, balance, password, gender, userId];
+        sql = `UPDATE Users SET FIO=?, Weight=?, Rank=?, Role=?, Email=?, Phone=?, BirthDate=?, SkillLevel=?, Password=?, Gender=? WHERE UserID=?`;
+        params = [fio, weight, rank, role, email, phone, birthDate, skillLevel, password, gender, userId];
     } else {
-        sql = `UPDATE Users SET FIO=?, Weight=?, Rank=?, Role=?, Email=?, Phone=?, BirthDate=?, SkillLevel=?, Balance=?, Gender=? WHERE UserID=?`;
-        params = [fio, weight, rank, role, email, phone, birthDate, skillLevel, balance, gender, userId];
+        sql = `UPDATE Users SET FIO=?, Weight=?, Rank=?, Role=?, Email=?, Phone=?, BirthDate=?, SkillLevel=?, Gender=? WHERE UserID=?`;
+        params = [fio, weight, rank, role, email, phone, birthDate, skillLevel, gender, userId];
     }
     
     db.run(sql, params, function(err) {
@@ -277,8 +266,8 @@ app.post('/api/admin/approve-organizer', (req, res) => {
         }
 
         db.run(
-            `INSERT INTO Users (FIO, Email, Password, Role, Balance) 
-             VALUES (?, ?, ?, 'Organizer', 0)`,
+            `INSERT INTO Users (FIO, Email, Password, Role)
+             VALUES (?, ?, ?, 'Organizer')`,
             [request.FIO, request.Email, request.Password],
             function(err) {
                 if (err && !err.message.includes('UNIQUE')) {
@@ -336,7 +325,7 @@ app.get('/api/competitions/by-level/:level', (req, res) => {
 });
 
 app.post('/api/competitions/create', (req, res) => {
-    const { title, location, eventDate, entryFee, organizerId, categories, level } = req.body;
+    const { title, location, eventDate, organizerId, categories, level } = req.body;
     
     let levelRank = 2;
     let levelName = level || 'Городские';
@@ -348,11 +337,11 @@ app.post('/api/competitions/create', (req, res) => {
     db.get("SELECT FIO FROM Users WHERE UserID = ?", [organizerId], (err, org) => {
         if (err || !org) return res.status(404).json({ success: false, message: 'Организатор не найден' });
 
-        const query = `INSERT INTO Competitions 
-                       (Title, Location, EventDate, EntryFee, OrganizerID, OrganizerFIO, Status, Categories, Level, LevelRank) 
-                       VALUES (?, ?, ?, ?, ?, ?, 'Registration', ?, ?, ?)`;
-        
-        db.run(query, [title, location, eventDate, entryFee, organizerId, org.FIO, categories, levelName, levelRank], function(err) {
+        const query = `INSERT INTO Competitions
+                       (Title, Location, EventDate, OrganizerID, OrganizerFIO, Status, Categories, Level, LevelRank)
+                       VALUES (?, ?, ?, ?, ?, 'Registration', ?, ?, ?)`;
+
+        db.run(query, [title, location, eventDate, organizerId, org.FIO, categories, levelName, levelRank], function(err) {
             if (err) return res.status(500).json(err);
             res.json({ success: true, compId: this.lastID });
         });
@@ -370,13 +359,13 @@ app.get('/api/organizer/competitions/:organizerId', (req, res) => {
 app.get('/api/organizer/applications/:organizerId', (req, res) => {
     const organizerId = req.params.organizerId;
     const query = `
-        SELECT 
-            a.AppID, a.UserID, u.FIO, u.Email, u.Weight, u.Rank, u.Balance, u.Gender,
-            a.CompID, c.Title as CompTitle, c.EntryFee, c.Categories, a.Category as SuggestedCategory
+        SELECT
+            a.AppID, a.UserID, u.FIO, u.Email, u.Weight, u.Rank, u.Gender,
+            a.CompID, c.Title as CompTitle, c.Categories, a.Category as SuggestedCategory
         FROM Applications a
         JOIN Users u ON a.UserID = u.UserID
         JOIN Competitions c ON a.CompID = c.CompID
-        WHERE c.OrganizerID = ? AND a.IsPaid = 0 AND a.Status = 'Pending'
+        WHERE c.OrganizerID = ? AND a.Status = 'Pending'
     `;
     db.all(query, [organizerId], (err, rows) => {
         if (err) return res.status(500).json([]);
@@ -399,28 +388,22 @@ app.get('/api/organizer/confirmed/:organizerId', (req, res) => {
     });
 });
 
-app.post('/api/organizer/pay', (req, res) => {
-    const { appId, userId, fee, category } = req.body;
-    
-    db.get("SELECT Balance, Email, FIO, Gender FROM Users WHERE UserID = ?", [userId], (err, user) => {
-        if (err || !user) return res.status(404).json({ success: false, message: "Пользователь не найден" });
-        if (user.Balance < fee) return res.json({ success: false, message: "Недостаточно средств" });
+app.post('/api/organizer/approve', (req, res) => {
+    const { appId, userId, category } = req.body;
 
-        db.get("SELECT c.Title FROM Applications a JOIN Competitions c ON a.CompID = c.CompID WHERE a.AppID = ?", [appId], (err, comp) => {
+    db.get("SELECT c.Title FROM Applications a JOIN Competitions c ON a.CompID = c.CompID WHERE a.AppID = ?", [appId], (err, comp) => {
+        if (err) return res.status(500).json({ success: false });
+
+        db.run("UPDATE Applications SET Status = 'Approved', Category = ? WHERE AppID = ?", [category, appId], async function(err) {
             if (err) return res.status(500).json({ success: false });
 
-            db.serialize(() => {
-                db.run("UPDATE Users SET Balance = Balance - ? WHERE UserID = ?", [fee, userId]);
-                db.run("UPDATE Applications SET IsPaid = 1, Category = ? WHERE AppID = ?", [category, appId], async function(err) {
-                    if (err) return res.status(500).json({ success: false });
-                    
-                    try {
-                        await sendEmail(user.Email, '✅ Заявка подтверждена', `<div>Заявка на турнир ${comp.Title} подтверждена! Категория: ${category}</div>`);
-                    } catch(emailError) {}
-                    
-                    res.json({ success: true, message: "Оплата подтверждена!" });
+            try {
+                db.get("SELECT Email FROM Users WHERE UserID = ?", [userId], async (err, u) => {
+                    if (u) await sendEmail(u.Email, '✅ Заявка подтверждена', `<div>Заявка на турнир ${comp.Title} подтверждена! Категория: ${category}</div>`);
                 });
-            });
+            } catch(emailError) {}
+
+            res.json({ success: true, message: "Заявка подтверждена!" });
         });
     });
 });
@@ -657,20 +640,20 @@ app.get('/api/get-protocol/:compId', (req, res) => {
 // ==========================================
 
 app.post('/api/organizer/edit-competition', (req, res) => {
-    const { compId, title, location, eventDate, entryFee, maxParticipants, level, status, categories } = req.body;
+    const { compId, title, location, eventDate, maxParticipants, level, status, categories } = req.body;
     
     if (!compId) {
         return res.status(400).json({ success: false, message: "Не указан ID турнира" });
     }
     
     const query = `
-        UPDATE Competitions 
-        SET Title = ?, Location = ?, EventDate = ?, EntryFee = ?, 
+        UPDATE Competitions
+        SET Title = ?, Location = ?, EventDate = ?,
             MaxParticipants = ?, Level = ?, Status = ?, Categories = ?
         WHERE CompID = ?
     `;
-    
-    db.run(query, [title, location, eventDate, entryFee, maxParticipants, level, status, categories, compId], function(err) {
+
+    db.run(query, [title, location, eventDate, maxParticipants, level, status, categories, compId], function(err) {
         if (err) {
             console.error("Ошибка обновления:", err);
             return res.status(500).json({ success: false, message: err.message });
@@ -733,7 +716,7 @@ app.post('/api/organizer/cancel-competition', (req, res) => {
 app.get('/api/user/applications/:userId', (req, res) => {
     const userId = req.params.userId;
     const query = `
-        SELECT a.*, c.Title as TournamentTitle, c.EventDate, c.Location, c.EntryFee
+        SELECT a.*, c.Title as TournamentTitle, c.EventDate, c.Location
         FROM Applications a
         JOIN Competitions c ON a.CompID = c.CompID
         WHERE a.UserID = ?
@@ -777,7 +760,43 @@ app.get('/api/organizer/applications/debug/:organizerId', (req, res) => {
         res.json(rows);
     });
 });
-
+// ==========================================
+// УДАЛЕНИЕ ТУРНИРА (АДМИН)
+// ==========================================
+app.post('/api/admin/delete-competition', (req, res) => {
+    const { compId } = req.body;
+    
+    if (!compId) {
+        return res.status(400).json({ success: false, message: "Не указан ID турнира" });
+    }
+    
+    console.log(`🗑️ Удаление турнира ID: ${compId}`);
+    
+    // 1. Удаляем связанные заявки
+    db.run("DELETE FROM Applications WHERE CompID = ?", [compId], (err) => {
+        if (err) console.error("Ошибка удаления заявок:", err.message);
+        
+        // 2. Удаляем протоколы
+        db.run("DELETE FROM Protocols WHERE CompID = ?", [compId], (err) => {
+            if (err) console.error("Ошибка удаления протоколов:", err.message);
+            
+            // 3. Удаляем сам турнир
+            db.run("DELETE FROM Competitions WHERE CompID = ?", [compId], function(err) {
+                if (err) {
+                    console.error("Ошибка удаления турнира:", err.message);
+                    return res.status(500).json({ success: false, message: err.message });
+                }
+                
+                if (this.changes === 0) {
+                    return res.status(404).json({ success: false, message: "Турнир не найден" });
+                }
+                
+                console.log(`✅ Турнир ${compId} удалён вместе со всеми заявками и протоколами`);
+                res.json({ success: true, message: "Турнир удалён" });
+            });
+        });
+    });
+});
 app.get('/api/debug/application/:appId', (req, res) => {
     const appId = req.params.appId;
     const query = `

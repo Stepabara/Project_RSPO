@@ -2,760 +2,972 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Админ-панель | ARM BY</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #0f172a; --glass: rgba(30, 41, 59, 0.7);
-            --primary: #3b82f6; --accent: #10b981;
-            --warning: #f59e0b; --danger: #ef4444;
-            --text: #f1f5f9; --border: rgba(255, 255, 255, 0.1);
-        }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
-        
-        nav { 
-            backdrop-filter: blur(15px); 
-            background: rgba(15, 23, 42, 0.9); 
-            padding: 1rem 5%; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid var(--border); 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000; 
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <title>Панель администратора | ARM SYSTEM PRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-        .logo { 
-            font-weight: 800; 
-            font-size: 1.4rem; 
-            cursor: pointer; 
-            transition: 0.2s;
-            user-select: none;
-        }
-        .logo:hover { opacity: 0.8; }
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0A0A0A; font-family: 'Inter', sans-serif; color: #FFFFFF; }
+    .header { background: rgba(10,10,10,0.95); padding: 15px 5%; border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
+    .header .container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; }
+    .logo { font-size: 20px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+    .logo:hover { opacity: 0.8; }
+    .logo span { color: #ef4444; }
+    .header-buttons { display: flex; gap: 15px; }
+    .btn { padding: 10px 18px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; font-family: 'Inter', sans-serif; }
+    .btn-primary { background: #555555; color: white; }
+    .btn-primary:hover { background: #6b6b6b; }
+    .btn-warning { background: #888888; color: white; }
+    .btn-warning:hover { background: #9a9a9a; }
+    .btn-danger { background: #ef4444; color: white; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-outline { background: transparent; border: 1px solid #555555; color: white; }
+    .btn-outline:hover { background: rgba(85,85,85,0.3); border-color: #888888; }
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
+    .btn-success { background: #555555; color: white; }
+    .btn-success:hover { background: #6b6b6b; }
+    .delete-btn { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.3s; }
+    .delete-btn:hover { background: #dc2626; }
+    .main-container { max-width: 1400px; margin: 0 auto; padding: 30px 20px; }
+    .card { background: #1A1A1A; border: 1px solid #333; border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+    .admin-tools { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; background: rgba(85,85,85,0.1); border: 1px dashed #555555; }
+    .admin-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+    .toolbar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .toolbar input, .toolbar select { background: #0F0F0F; border: 1px solid #333; padding: 10px 14px; border-radius: 8px; color: white; font-family: 'Inter', sans-serif; }
+    .toolbar input { width: 250px; }
+    .toolbar select { width: 160px; }
+    .users-table { background: #1A1A1A; border-radius: 12px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 15px; color: #a0a0a0; font-weight: 600; border-bottom: 2px solid #333; }
+    td { padding: 15px; border-bottom: 1px solid #333; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+    .badge-rank { background: #6366f1; color: white; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+    .modal-content { background: #1E1E1E; padding: 30px; border-radius: 20px; width: 90%; max-width: 700px; border: 1px solid #555555; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h2 { color: #888888; }
+    .modal-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 8px; color: #a0a0a0; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+    .form-group input, .form-group select { width: 100%; padding: 12px; background: #0F0F0F; border: 1px solid #333; border-radius: 8px; color: white; }
+    .modal-actions { display: flex; gap: 16px; margin-top: 20px; }
+    .modal-actions .btn { flex: 1; justify-content: center; }
+    .requests-grid { display: flex; flex-wrap: wrap; gap: 24px; }
+    .tournaments-grid { display: flex; flex-wrap: wrap; gap: 24px; }
+.request-card { 
+    background: #1A1A1A; 
+    border: 1px solid #333; 
+    border-radius: 12px; 
+    padding: 20px; 
+    transition: 0.3s; 
+    display: flex; 
+    flex-direction: column; 
+    width: 320px; 
+}
+    .request-card:hover { border-color: #888888; transform: translateY(-2px); }
+.request-info { flex: 1; }
+.request-name { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #fff; }
+.request-email { color: #b0b0b0; font-size: 14px; margin-bottom: 5px; word-break: break-all; }
+.request-phone { color: #b0b0b0; font-size: 14px; margin-bottom: 8px; }
+.request-date { color: #9ca3af; font-size: 12px; margin-bottom: 15px; }
+.request-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px; }
+.request-actions .btn { flex: 1; justify-content: center; }
 
-        .container { max-width: 1400px; margin: 2rem auto; padding: 0 20px; }
-        .card { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; }
-        
-        .admin-tools { 
-            display: flex; 
-            gap: 15px; 
-            align-items: center; 
-            justify-content: space-between;
-            background: rgba(59, 130, 246, 0.1); 
-            padding: 15px; 
-            border-radius: 15px; 
-            border: 1px dashed var(--primary); 
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .toolbar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .toolbar input { width: 250px; flex-shrink: 0; }
-        .toolbar select { width: 180px; flex-shrink: 0; }
-
-        @media (max-width: 1000px) {
-            .toolbar input, .toolbar select { width: 1fr; flex: 1; }
-        }
-        @media (max-width: 768px) {
-            .toolbar input, .toolbar select { width: 100%; }
-        }
-        
-        input, select { background: #070a13; color: white; border: 1px solid var(--border); padding: 12px; border-radius: 10px; outline: none; width: 100%; }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; color: #94a3b8; padding: 15px; border-bottom: 2px solid var(--border); font-size: 0.8rem; }
-        td { padding: 15px; border-bottom: 1px solid var(--border); }
-
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; }
-        .badge-rank { background: #6366f1; color: white; }
-        
-        .btn { 
-            padding: 10px 18px; 
-            border-radius: 10px; 
-            border: none; 
-            cursor: pointer; 
-            font-weight: 600; 
-            transition: 0.3s; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 8px; 
-        }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-warning { background: var(--warning); color: black; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-accent { background: var(--accent); color: white; }
-        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-        .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: var(--primary); }
-
-        .modal { 
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.8); 
-            z-index: 2000; 
-            align-items: center; 
-            justify-content: center; 
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content { 
-            background: #1e293b; 
-            padding: 30px; 
-            border-radius: 25px; 
-            width: 90%;
-            max-width: 700px;
-            border: 1px solid var(--primary); 
-            max-height: 90vh; 
-            overflow-y: auto; 
-        }
-
-        .modal-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-group { margin-bottom: 0; }
-        .form-group label { 
-            display: block; 
-            margin-bottom: 8px; 
-            font-size: 0.85rem; 
-            color: #94a3b8; 
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px 15px;
-            background: #0f172a;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            color: white;
-            font-size: 0.95rem;
-            transition: 0.3s;
-            box-sizing: border-box;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-            outline: none;
-        }
-
-        .form-group small {
-            display: block;
-            color: #64748b;
-            font-size: 0.7rem;
-            margin-top: 5px;
-        }
-
-        @media (max-width: 768px) {
-            .modal-content { padding: 20px; max-width: 95%; }
-            .modal-grid { grid-template-columns: 1fr; gap: 15px; }
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .modal-actions .btn { flex: 1; padding: 14px; justify-content: center; font-size: 1rem; }
-        .modal-divider { height: 1px; background: var(--border); margin: 20px 0; }
-
-        .badge-count {
-            background: var(--danger);
-            color: white;
-            border-radius: 50%;
-            padding: 2px 8px;
-            font-size: 0.8rem;
-            margin-left: 8px;
-        }
-
-        .request-card {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.3s;
-        }
-        .request-card:hover { background: rgba(30, 41, 59, 0.8); border-color: var(--primary); }
-        .request-card.pending { border-left: 4px solid var(--warning); }
-        .request-info-compact { flex: 1; }
-        .request-name { font-weight: 700; color: var(--text); margin-bottom: 5px; }
-        .request-email { color: #94a3b8; font-size: 0.9rem; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .request-actions { display: flex; gap: 10px; align-items: center; }
-
-        .btn-icon {
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 8px;
-            transition: 0.3s;
-        }
-        .btn-icon:hover { color: var(--primary); background: rgba(59, 130, 246, 0.1); }
-        .btn-icon.approve:hover { color: var(--accent); }
-        .btn-icon.reject:hover { color: var(--danger); }
-
-        .request-details { background: rgba(15, 23, 42, 0.6); border-radius: 12px; padding: 20px; }
-        .detail-row { display: flex; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed var(--border); }
-        .detail-label { width: 100px; color: #94a3b8; font-weight: 600; }
-        .detail-value { flex: 1; color: var(--text); }
-        .detail-message {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px dashed var(--primary);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
-            font-style: italic;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #64748b;
-            background: rgba(255,255,255,0.02);
-            border-radius: 12px;
-            border: 2px dashed var(--border);
-        }
-        .empty-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
-
-        .competition-select {
-            background: #0f172a;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px;
-            color: white;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        .warning-text { color: var(--warning); font-size: 12px; margin-top: 5px; }
-        .admin-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
-    </style>
+    .tournament-card { background: #1A1A1A; border: 1px solid #333; border-radius: 12px; padding: 20px; transition: 0.3s; }
+    .tournament-card:hover { border-color: #888888; transform: translateY(-2px); }
+    .tournament-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: #fff; }
+    .tournament-status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .status-registration { background: #555555; color: white; }
+    .status-active { background: #777777; color: white; }
+    .status-completed { background: #444444; color: white; }
+    .status-cancelled { background: #ef4444; color: white; }
+    .tournament-info p { color: #b0b0b0; font-size: 13px; margin: 6px 0; }
+    .protocol-card { background: #1A1A1A; border: 1px solid #333; border-radius: 12px; padding: 20px; transition: 0.3s; }
+    .protocol-card:hover { border-color: #888888; transform: translateY(-2px); }
+    .protocol-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: #fff; }
+    .protocol-date { color: #b0b0b0; font-size: 13px; margin: 6px 0; }
+    .loading { text-align: center; padding: 40px; color: #888; }
+    .badge-count { background: #ef4444; color: white; border-radius: 50%; padding: 2px 8px; font-size: 12px; margin-left: 8px; }
+    .tabs { display: flex; gap: 4px; border-bottom: 1px solid #333; margin-bottom: 24px; flex-wrap: wrap; }
+    .tab-btn { background: transparent; border: none; padding: 12px 24px; color: #a0a0a0; cursor: pointer; font-weight: 600; transition: 0.3s; border-bottom: 2px solid transparent; }
+    .tab-btn.active { color: #fff; border-bottom-color: #888888; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .protocol-table-container { max-height: 500px; overflow-y: auto; margin-top: 20px; }
+    .protocol-table { width: 100%; border-collapse: collapse; }
+    .protocol-table th, .protocol-table td { padding: 10px; text-align: left; border-bottom: 1px solid #333; }
+    .warning-text { color: #f59e0b; font-size: 12px; margin-top: 5px; }
+  @media (max-width: 768px) {
+    .request-card { width: 100%; }
+}   
+  @media (max-width: 768px) { .modal-grid { grid-template-columns: 1fr; } .toolbar input, .toolbar select { width: 100%; } .admin-tools { flex-direction: column; } .header .container { flex-direction: column; gap: 15px; } .header-buttons { width: 100%; justify-content: center; } .request-card { flex-direction: column; align-items: stretch; } .request-actions { justify-content: flex-end; } }
+</style>
 </head>
 <body>
-
-<nav>
-    <div class="logo" onclick="location.href='index.html'">
-        ARM <span style="color:var(--danger)">ADMIN</span>
-    </div>  
-    <div style="display: flex; gap: 15px;">
-        <button class="btn btn-primary" onclick="location.href='protocol.html'">📄 Протоколы</button>
-        <button class="btn btn-warning" onclick="openRequestsModal()">
-            📋 Заявки на орга <span id="requestsBadge" class="badge-count">0</span>
-        </button>
-        <button class="btn btn-danger" onclick="logout()">Выход</button>
+<header class="header">
+    <div class="container">
+        <div class="logo" onclick="location.href='index.html'">ARM <span>ADMIN</span></div>
+        <div class="header-buttons">
+            <button class="btn btn-primary" onclick="openMassApplyModal()">Массовая подача</button>
+            <button class="btn btn-danger" onclick="logout()">Выход</button>
+        </div>
     </div>
-</nav>
-
-<div class="container">
+</header>
+<div class="main-container">
     <div class="card admin-tools">
-        <h3 style="margin:0">⚡ Быстрые действия</h3>
+        <h3>Быстрые действия</h3>
         <div class="admin-buttons">
-            <button class="btn btn-primary" onclick="openMassApplyModal()">📝 Массовая подача заявок</button>
-            <button class="btn btn-warning" id="genBtn" onclick="generateFakeUsers()">🤖 Сгенерировать 20 атлетов</button>
+            <button class="btn btn-primary" onclick="openMassApplyModal()">Массовая подача заявок</button>
+            <button class="btn btn-warning" id="genBtn" onclick="generateFakeUsers()">Сгенерировать 20 атлетов</button>
         </div>
     </div>
-
-    <div class="card">
-        <div class="toolbar">
-            <input type="text" id="searchInput" placeholder="Поиск (ФИО, ID)..." oninput="applyFilters()">
-            <select id="rankFilter" onchange="applyFilters()">
-                <option value="all">Все разряды</option>
-                <option value="Б/Р">Б/Р</option>
-                <option value="1 разряд">1 разряд</option>
-                <option value="КМС">КМС</option>
-                <option value="МС">МС</option>
-                <option value="МСМК">МСМК</option>
-            </select>
-            <select id="genderFilter" onchange="applyFilters()">
-                <option value="all">Все полы</option>
-                <option value="Мужской">👨 Мужской</option>
-                <option value="Женский">👩 Женский</option>
-            </select>
-            <select id="roleFilter" onchange="applyFilters()">
-                <option value="all">Все роли</option>
-                <option value="User">User</option>
-                <option value="Organizer">Organizer</option>
-            </select>
-            <select id="sortFilter" onchange="applyFilters()">
-                <option value="weight-desc">Вес: Тяжелые ↓</option>
-                <option value="weight-asc">Вес: Легкие ↑</option>
-            </select>
-        </div>
-        
-         <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>ФИО</th>
-                    <th>Вес</th>
-                    <th>Разряд</th>
-                    <th>Пол</th>
-                    <th>Сила</th> 
-                    <th>Роль</th>
-                    <th>Действие</th>
-                 </tr>
-            </thead>
-            <tbody id="userTableBody"></tbody>
-         </table>
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="users">Пользователи</button>
+        <button class="tab-btn" data-tab="requests">Заявки на организатора <span id="requestsBadge" class="badge-count">0</span></button>
+        <button class="tab-btn" data-tab="tournaments">Турниры</button>
+        <button class="tab-btn" data-tab="protocols">Протоколы</button>
     </div>
-</div>
-
-<!-- Модальное окно массовой подачи заявок -->
-<div class="modal" id="massApplyModal">
-    <div class="modal-content" style="max-width: 500px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="margin:0;">📝 Массовая подача заявок</h2>
-            <button class="btn btn-outline" onclick="closeMassApplyModal()" style="padding: 8px 16px;">✕</button>
-        </div>
-        
-        <div class="form-group">
-            <label>🏆 Выберите турнир</label>
-            <select id="applyCompSelect" class="competition-select">
-                <option value="">Загрузка турниров...</option>
-            </select>
-            <div class="warning-text">⚠️ Все пользователи с ролью User получат заявку на этот турнир</div>
-        </div>
-        
-        <div class="form-group">
-            <label>📊 Информация</label>
-            <div style="background: rgba(15,23,42,0.6); padding: 12px; border-radius: 10px; margin-top: 5px;">
-                <div>👥 Всего пользователей: <strong id="totalUsersCount">0</strong></div>
-                <div>📋 Будет создано заявок: <strong id="applyCount">0</strong></div>
+    
+    <!-- Вкладка Пользователи -->
+    <div id="usersTab" class="tab-content active">
+        <div class="card">
+            <div class="toolbar">
+                <input type="text" id="searchInput" placeholder="Поиск (ФИО, ID)..." oninput="applyFilters()">
+                <select id="rankFilter" onchange="applyFilters()"><option value="all">Все разряды</option><option value="Б/Р">Б/Р</option><option value="1 разряд">1 разряд</option><option value="КМС">КМС</option><option value="МС">МС</option><option value="МСМК">МСМК</option></select>
+                <select id="genderFilter" onchange="applyFilters()"><option value="all">Все полы</option><option value="Мужской">Мужской</option><option value="Женский">Женский</option></select>
+                <select id="roleFilter" onchange="applyFilters()"><option value="all">Все роли</option><option value="User">User</option><option value="Organizer">Organizer</option></select>
+                <select id="sortFilter" onchange="applyFilters()"><option value="weight-desc">Вес: Тяжелые ↓</option><option value="weight-asc">Вес: Легкие ↑</option></select>
+            </div>
+            <div class="users-table">
+                <table>
+                    <thead><tr><th>ID</th><th>ФИО</th><th>Вес</th><th>Разряд</th><th>Пол</th><th>Сила</th><th>Роль</th><th>Действие</th></tr></thead>
+                    <tbody id="userTableBody"><tr><td colspan="8" class="loading">Загрузка...</td></tr></tbody>
+                </table>
             </div>
         </div>
-        
-        <div class="modal-actions">
-            <button class="btn btn-primary" onclick="submitMassApply()">
-                ✅ Подтвердить подачу
-            </button>
-            <button class="btn btn-outline" onclick="closeMassApplyModal()">
-                Отмена
-            </button>
+    </div>
+    
+    <!-- Вкладка Заявки на организатора -->
+    <div id="requestsTab" class="tab-content">
+        <div class="card">
+            <div id="requestsGrid" class="requests-grid"><div class="loading">Загрузка заявок...</div></div>
+        </div>
+    </div>
+    
+    <!-- Вкладка Турниры -->
+    <div id="tournamentsTab" class="tab-content">
+        <div class="card">
+            <div id="tournamentsGrid" class="tournaments-grid"><div class="loading">Загрузка турниров...</div></div>
+        </div>
+    </div>
+    
+    <!-- Вкладка Протоколы -->
+    <div id="protocolsTab" class="tab-content">
+        <div class="card">
+            <div id="protocolsGrid" class="tournaments-grid"><div class="loading">Загрузка протоколов...</div></div>
         </div>
     </div>
 </div>
 
-<!-- Модальное окно заявок на организатора -->
-<div class="modal" id="requestsModal">
-    <div class="modal-content" style="max-width: 800px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="margin:0;">📋 Заявки на организатора</h2>
-            <button class="btn btn-outline" onclick="closeRequestsModal()" style="padding: 8px 16px;">✕</button>
-        </div>
-        <div id="requestsList" style="max-height: 500px; overflow-y: auto;">
-            <div style="text-align: center; padding: 40px; color: #64748b;">Загрузка...</div>
-        </div>
+<!-- Модалка массовой подачи -->
+<div id="massApplyModal" class="modal">
+    <div class="modal-content" style="max-width:500px">
+        <div class="modal-header"><h2>Массовая подача заявок</h2><button class="btn btn-outline btn-sm" onclick="closeMassApplyModal()">✕</button></div>
+        <div class="form-group"><label> Выберите турнир</label><select id="applyCompSelect"><option value="">Загрузка турниров...</option></select></div>
+        <div class="warning-text">Все пользователи с ролью User получат заявку на этот турнир</div>
+        <div class="form-group"><label>Информация</label><div style="background:rgba(15,23,42,0.6);padding:12px;border-radius:10px"><div>Всего пользователей: <strong id="totalUsersCount">0</strong></div><div>Будет создано заявок: <strong id="applyCount">0</strong></div></div></div>
+        <div class="modal-actions"><button class="btn btn-primary" onclick="submitMassApply()"> Подтвердить подачу</button><button class="btn btn-outline" onclick="closeMassApplyModal()">Отмена</button></div>
     </div>
 </div>
 
-<!-- Модальное окно подробностей заявки -->
-<div class="modal" id="requestDetailsModal">
-    <div class="modal-content" style="max-width: 500px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="margin:0;">📄 Подробности заявки</h2>
-            <button class="btn btn-outline" onclick="closeDetailsModal()" style="padding: 8px 16px;">✕</button>
+<!-- Модалка редактирования турнира -->
+<div id="editTournamentModal" class="modal">
+    <div class="modal-content" style="max-width:600px">
+        <div class="modal-header"><h2>Редактирование турнира</h2><button class="btn btn-outline btn-sm" onclick="closeEditTournamentModal()">✕</button></div>
+        <input type="hidden" id="editCompId">
+        <div class="form-group"><label>Название турнира</label><input type="text" id="editCompTitle"></div>
+        <div class="form-group"><label>Место проведения</label><input type="text" id="editCompLocation"></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+            <div class="form-group"><label>Дата проведения</label><input type="date" id="editCompDate"></div>
         </div>
-        <div id="requestDetails" class="request-details"></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+            <div class="form-group"><label>Максимум участников</label><input type="number" id="editCompMaxParticipants" min="2" max="256"></div>
+            <div class="form-group"><label>Уровень соревнований</label><select id="editCompLevel"><option value="Районные">Районные</option><option value="Городские">Городские</option><option value="Республиканские">Республиканские</option></select></div>
+        </div>
+        <div class="form-group"><label>Статус турнира</label><select id="editCompStatus"><option value="Registration">Регистрация открыта</option><option value="Active">Активен (идут бои)</option><option value="Completed">Завершен</option><option value="Cancelled">Отменен</option></select></div>
+        <div class="form-group"><label>Категории (каждая с новой строки)</label><textarea id="editCompCategories" rows="4" placeholder="Женщины До 60кг&#10;Женщины До 70кг&#10;Мужчины До 70кг&#10;Мужчины До 85кг"></textarea></div>
+        <div class="modal-actions"><button class="btn btn-primary" onclick="saveTournamentEdit()"> Сохранить изменения</button><button class="btn btn-outline" onclick="closeEditTournamentModal()">Отмена</button></div>
     </div>
 </div>
 
-<!-- Модальное окно редактирования -->
+<!-- Модалка редактирования пользователя -->
 <div id="editModal" class="modal">
     <div class="modal-content">
-        <h2 style="margin-top:0; margin-bottom: 25px; color: var(--primary); display: flex; align-items: center; gap: 10px;">
-            <span>🛠️</span> Редактирование профиля
-        </h2>
+        <div class="modal-header"><h2>Редактирование профиля</h2><button class="btn btn-outline btn-sm" onclick="closeModal()">✕</button></div>
+        <input type="hidden" id="editUserId">
         <div class="modal-grid">
-            <input type="hidden" id="editUserId">
-            <div class="form-group"><label>👤 ФИО</label><input type="text" id="fieldFio" placeholder="Иванов Иван Иванович"></div>
-            <div class="form-group">
-                <label>🏅 Разряд</label>
-                <select id="fieldRank">
-                    <option value="Б/Р">Без разряда</option>
-                    <option value="3 разряд">3 разряд</option>
-                    <option value="2 разряд">2 разряд</option>
-                    <option value="1 разряд">1 разряд</option>
-                    <option value="КМС">КМС</option>
-                    <option value="МС">МС</option>
-                    <option value="МСМК">МСМК</option>
-                </select>
-            </div>
-            <div class="form-group"><label>⚖️ Вес (кг)</label><input type="number" id="fieldWeight" step="0.1" min="40" max="200" placeholder="70.5"></div>
-            <div class="form-group"><label>🔑 Пароль</label><input type="text" id="fieldPass" placeholder="Оставьте пустым если не меняете"><small>Заполняйте только для смены пароля</small></div>
-            <div class="form-group"><label>📧 Email</label><input type="email" id="fieldEmail" placeholder="example@mail.com"></div>
-            <div class="form-group"><label>📞 Телефон</label><input type="tel" id="fieldPhone" placeholder="+375(29)123-45-67"></div>
-            <div class="form-group">
-                <label>👤 Пол</label>
-                <select id="fieldGender">
-                    <option value="Мужской">👨 Мужской</option>
-                    <option value="Женский">👩 Женский</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>🎭 Роль</label>
-                <select id="fieldRole">
-                    <option value="User">👤 User (Атлет)</option>
-                    <option value="Organizer">📋 Organizer (Организатор)</option>
-                </select>
-            </div>
-            <div class="form-group"><label>📅 Дата рождения</label><input type="date" id="fieldBirth"></div>
-            <div class="form-group"><label>💪 Сила (1-100)</label><input type="number" id="fieldSkill" min="1" max="100" step="1" placeholder="75"></div>
-            <div class="form-group"><label>💰 Баланс (BYN)</label><input type="number" id="fieldBalance" min="0" step="0.01" placeholder="100.00"></div>
+            <div class="form-group"><label>ФИО</label><input type="text" id="fieldFio"></div>
+            <div class="form-group"><label>Разряд</label><select id="fieldRank"><option value="Б/Р">Без разряда</option><option value="3 разряд">3 разряд</option><option value="2 разряд">2 разряд</option><option value="1 разряд">1 разряд</option><option value="КМС">КМС</option><option value="МС">МС</option><option value="МСМК">МСМК</option></select></div>
+            <div class="form-group"><label>Вес (кг)</label><input type="number" id="fieldWeight" step="0.1"></div>
+            <div class="form-group"><label>Пароль</label><input type="text" id="fieldPass" placeholder="Оставьте пустым"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="fieldEmail"></div>
+            <div class="form-group"><label>Телефон</label><input type="tel" id="fieldPhone"></div>
+            <div class="form-group"><label>Пол</label><select id="fieldGender"><option value="Мужской">Мужской</option><option value="Женский">Женский</option></select></div>
+            <div class="form-group"><label> Роль</label><select id="fieldRole"><option value="User">User (Атлет)</option><option value="Organizer">Organizer (Организатор)</option></select></div>
+            <div class="form-group"><label> Дата рождения</label><input type="date" id="fieldBirth"></div>
+            <div class="form-group"><label> Сила (1-100)</label><input type="number" id="fieldSkill" min="1" max="100"></div>
         </div>
-        <div class="modal-divider"></div>
+        <div class="modal-actions"><button class="btn btn-primary" onclick="saveUser()"> Сохранить</button><button class="btn btn-outline" onclick="closeModal()">Отмена</button></div>
+    </div>
+</div>
+
+<!-- Модалка просмотра протокола -->
+<div id="protocolViewModal" class="modal">
+    <div class="modal-content" style="max-width:800px">
+        <div class="modal-header">
+            <h2>Протокол турнира</h2>
+            <button class="btn btn-outline btn-sm" onclick="closeProtocolModal()">✕</button>
+        </div>
+        <div id="protocolViewContent" class="protocol-table-container"></div>
         <div class="modal-actions">
-            <button class="btn btn-primary" onclick="saveUser()">💾 Сохранить изменения</button>
-            <button class="btn btn-outline" onclick="closeModal()">Отмена</button>
+            <button class="btn btn-primary" onclick="downloadProtocolPDF()">Скачать PDF</button>
+            <button class="btn btn-outline" onclick="closeProtocolModal()">Закрыть</button>
         </div>
     </div>
 </div>
 
 <script>
-    let allUsers = [];
-    let allTournaments = [];
+let allUsers = [];
+let allTournaments = [];
+let currentRequests = [];
+let currentProtocolData = null;
+let currentProtocolCompId = null;
 
-    // ===== ЗАГРУЗКА ДАННЫХ =====
-    async function loadData() {
+// ========== ПОЛЬЗОВАТЕЛИ ==========
+async function loadData() {
+    try {
+        const res = await fetch('/api/admin/users');
+        if (!res.ok) throw new Error("Ошибка сервера");
+        const users = await res.json();
+        allUsers = users.filter(u => u.Role !== 'Admin');
+        applyFilters();
+        updateRequestsBadgeCount();
+    } catch (e) { console.error(e); allUsers = []; renderTable([]); }
+}
+
+function renderTable(data) {
+    const tbody = document.getElementById('userTableBody');
+    if (!data.length) { tbody.innerHTML = '<tr><td colspan="8" class="loading">Нет пользователей<\/td><\/tr>'; return; }
+    let html = '';
+    for (let u of data) {
+        html += `<tr>
+            <td style="color:#64748b">#${u.UserID}<\/td>
+            <td><b>${escapeHtml(u.FIO || '')}<\/b><\/td>
+            <td>${u.Weight || 0} кг<\/td>
+            <td><span class="badge badge-rank">${u.Rank || 'Б/Р'}<\/span><\/td>
+            <td>${u.Gender === 'Женский' ? 'Женский' : 'Мужской'}<\/td>
+            <td style="color:#f59e0b">${u.SkillLevel || 0}<\/td>
+            <td>${u.Role || 'User'}<\/td>
+            <td><button class="btn btn-primary btn-sm" onclick="openEditModal(${u.UserID})">Редактировать<\/button><\/td>
+        </tr>`;
+    }
+    tbody.innerHTML = html;
+}
+
+function applyFilters() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const rankF = document.getElementById('rankFilter').value;
+    const genderF = document.getElementById('genderFilter').value;
+    const roleF = document.getElementById('roleFilter').value;
+    const sort = document.getElementById('sortFilter').value;
+
+    let filtered = allUsers.filter(u => {
+        // Поиск по ФИО или ID
+        const matchesSearch = (u.FIO || '').toLowerCase().includes(search) || String(u.UserID).includes(search);
+        // Фильтр по разряду
+        const matchesRank = rankF === 'all' || (u.Rank || 'Б/Р') === rankF;
+        // Фильтр по полу
+        const matchesGender = genderF === 'all' || (u.Gender || 'Мужской') === genderF;
+        // Фильтр по роли
+        const matchesRole = roleF === 'all' || u.Role === roleF;
+        
+        return matchesSearch && matchesRank && matchesGender && matchesRole;
+    });
+
+    // Сортировка
+    if (sort === 'weight-desc') {
+        filtered.sort((a, b) => (b.Weight || 0) - (a.Weight || 0));
+    } else if (sort === 'weight-asc') {
+        filtered.sort((a, b) => (a.Weight || 0) - (b.Weight || 0));
+    }
+
+    renderTable(filtered);
+}
+
+function openEditModal(id) {
+    const u = allUsers.find(x => x.UserID === id);
+    if (!u) return;
+    document.getElementById('editUserId').value = u.UserID;
+    document.getElementById('fieldFio').value = u.FIO || '';
+    document.getElementById('fieldWeight').value = u.Weight || 0;
+    document.getElementById('fieldRank').value = u.Rank || "Б/Р";
+    document.getElementById('fieldGender').value = u.Gender || "Мужской";
+    document.getElementById('fieldRole').value = u.Role || "User";
+    document.getElementById('fieldPass').value = '';
+    document.getElementById('fieldEmail').value = u.Email || '';
+    document.getElementById('fieldPhone').value = u.Phone || '';
+    document.getElementById('fieldBirth').value = u.BirthDate ? u.BirthDate.split('T')[0] : '';
+    document.getElementById('fieldSkill').value = u.SkillLevel || 1;
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeModal() { document.getElementById('editModal').style.display = 'none'; }
+
+async function saveUser() {
+    const userId = document.getElementById('editUserId').value;
+    const password = document.getElementById('fieldPass').value;
+    const fio = document.getElementById('fieldFio').value.trim();
+    const email = document.getElementById('fieldEmail').value.trim();
+    const phone = document.getElementById('fieldPhone').value.trim();
+    const weightVal = document.getElementById('fieldWeight').value;
+    const birthDate = document.getElementById('fieldBirth').value;
+    const skillLevelVal = document.getElementById('fieldSkill').value;
+
+    if (!fio || !email) {
+        alert('ФИО и Email обязательны для заполнения');
+        return;
+    }
+    if (fio.length < 5 || fio.split(' ').length < 2) {
+        alert('Введите полное ФИО (минимум Имя и Фамилия)');
+        return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Введите корректный email');
+        return;
+    }
+    if (phone && !/^\+?[0-9\s\-\(\)]{7,20}$/.test(phone)) {
+        alert('Введите корректный номер телефона');
+        return;
+    }
+    const weight = weightVal ? parseFloat(weightVal) : 0;
+    if (weightVal && (isNaN(weight) || weight < 30 || weight > 300)) {
+        alert('Введите корректный вес (30-300 кг)');
+        return;
+    }
+    const skillLevel = skillLevelVal ? parseInt(skillLevelVal) : 1;
+    if (skillLevelVal && (isNaN(skillLevel) || skillLevel < 1 || skillLevel > 100)) {
+        alert('Введите корректную силу (1-100)');
+        return;
+    }
+    if (password && password.length < 4) {
+        alert('Пароль должен быть не менее 4 символов');
+        return;
+    }
+
+    const payload = {
+        userId, fio, weight, rank: document.getElementById('fieldRank').value,
+        gender: document.getElementById('fieldGender').value,
+        role: document.getElementById('fieldRole').value,
+        email, phone, birthDate, skillLevel
+    };
+    if (password && password.trim()) payload.password = password;
+    try {
+        const res = await fetch('/api/admin/update-user-full', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const result = await res.json();
+        if (result.success) { alert(' Данные обновлены!'); closeModal(); loadData(); }
+        else alert(' Ошибка сохранения');
+    } catch(e) { alert('Ошибка сервера'); }
+}
+
+async function generateFakeUsers() {
+    const ranks = ["Б/Р", "1 разряд", "КМС", "МС", "МСМК"];
+    const genders = ["Мужской", "Женский"];
+    const btn = document.getElementById('genBtn');
+    const originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = " Генерирую...";
+    for (let i = 0; i < 20; i++) {
         try {
-            const res = await fetch('/api/admin/users');
-            if (!res.ok) throw new Error("Ошибка сервера");
-            const users = await res.json();
-            allUsers = users.filter(u => u.Role !== 'Admin');
-            console.log("Загружены пользователи:", allUsers);
-            applyFilters();
-            updateRequestsBadgeCount();
-        } catch (e) {
-            console.error("Ошибка загрузки:", e);
-            allUsers = [{UserID: 1, FIO: "Иван Иванов", Weight: 85, Rank: "КМС", Gender: "Мужской", SkillLevel: 70, Role: "User"}];
-            renderTable(allUsers);
-        }
-    }
-
-    function renderTable(data) {
-        const tbody = document.getElementById('userTableBody');
-        tbody.innerHTML = data.map(u => `
-            <tr>
-                <td style="color:#64748b; font-family:monospace">#${u.UserID}</td>
-                <td><b>${u.FIO}</b></td>
-                <td>${u.Weight} кг</td>
-                <td><span class="badge badge-rank">${u.Rank || 'Б/Р'}</span></td>
-                <td>${u.Gender === 'Женский' ? '👩 Женский' : '👨 Мужской'}</td>
-                <td><b style="color:var(--warning)">⚡ ${u.SkillLevel ?? 0}</b></td>
-                <td>${u.Role}</td>
-                <td><button class="btn btn-primary" onclick="openEditModal(${u.UserID})">✏️</button></td>
-            </tr>
-        `).join('');
-    }
-
-    function applyFilters() {
-        const search = document.getElementById('searchInput').value.toLowerCase();
-        const rankF = document.getElementById('rankFilter').value;
-        const genderF = document.getElementById('genderFilter').value;
-        const roleF = document.getElementById('roleFilter').value;
-        const sort = document.getElementById('sortFilter').value;
-
-        let filtered = allUsers.filter(u => {
-            const matchesSearch = u.FIO.toLowerCase().includes(search) || String(u.UserID).includes(search);
-            const matchesRank = rankF === 'all' || (u.Rank || "Б/Р") === rankF;
-            const matchesGender = genderF === 'all' || (u.Gender || "Мужской") === genderF;
-            const matchesRole = roleF === 'all' || u.Role === roleF;
-            return matchesSearch && matchesRank && matchesGender && matchesRole;
-        });
-
-        filtered.sort((a, b) => sort === 'weight-desc' ? b.Weight - a.Weight : a.Weight - b.Weight);
-        renderTable(filtered);
-    }
-
-    function openEditModal(id) {
-        const u = allUsers.find(x => x.UserID === id);
-        if(!u) return;
-        
-        document.getElementById('editUserId').value = u.UserID;
-        document.getElementById('fieldFio').value = u.FIO || '';
-        document.getElementById('fieldWeight').value = u.Weight || 0;
-        document.getElementById('fieldRank').value = u.Rank || "Б/Р";
-        document.getElementById('fieldGender').value = u.Gender || "Мужской";
-        document.getElementById('fieldRole').value = u.Role || "User";
-        document.getElementById('fieldPass').value = '';
-        document.getElementById('fieldEmail').value = u.Email || '';
-        document.getElementById('fieldPhone').value = u.Phone || '';
-        document.getElementById('fieldBirth').value = u.BirthDate ? u.BirthDate.split('T')[0] : '';
-        document.getElementById('fieldSkill').value = u.SkillLevel ?? 1;
-        document.getElementById('fieldBalance').value = u.Balance || 0;
-        
-        document.getElementById('editModal').style.display = 'flex';
-    }
-
-    function closeModal() { document.getElementById('editModal').style.display = 'none'; }
-
-    async function saveUser() {
-        const userId = document.getElementById('editUserId').value;
-        const password = document.getElementById('fieldPass').value;
-        
-        const payload = {
-            userId: userId,
-            fio: document.getElementById('fieldFio').value,
-            weight: parseFloat(document.getElementById('fieldWeight').value) || 0,
-            rank: document.getElementById('fieldRank').value,
-            gender: document.getElementById('fieldGender').value,
-            role: document.getElementById('fieldRole').value,
-            email: document.getElementById('fieldEmail').value,
-            phone: document.getElementById('fieldPhone').value,
-            birthDate: document.getElementById('fieldBirth').value,
-            skillLevel: parseInt(document.getElementById('fieldSkill').value) || 1,
-            balance: parseFloat(document.getElementById('fieldBalance').value) || 0
-        };
-        
-        if (password && password.trim() !== '') {
-            payload.password = password;
-        }
-        
-        try {
-            const res = await fetch('/api/admin/update-user-full', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
+            await fetch('/api/register', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fio: "Атлет " + (allUsers.length + i + 1), password: "123", weight: Math.floor(Math.random() * 60 + 60), birthDate: "1995-01-01", rank: ranks[Math.floor(Math.random() * ranks.length)], gender: genders[Math.floor(Math.random() * genders.length)] })
             });
-            
-            const result = await res.json();
-            
-            if(result.success) { 
-                alert('✅ Данные успешно обновлены!');
-                closeModal(); 
-                loadData(); 
-            } else { 
-                alert('❌ Ошибка сохранения: ' + (result.message || 'Неизвестная ошибка')); 
-            }
-        } catch(e) {
-            console.error('Ошибка:', e);
-            alert('Ошибка сервера');
-        }
+        } catch(e) {}
     }
+    btn.disabled = false; btn.innerText = originalText;
+    alert(" 20 атлетов добавлены!");
+    loadData();
+}
 
-    async function generateFakeUsers() {
-        const ranks = ["Б/Р", "1 разряд", "КМС", "МС", "МСМК"];
-        const genders = ["Мужской", "Женский"];
-        const btn = document.getElementById('genBtn');
-        const originalText = btn.innerText;
-        
-        btn.disabled = true;
-        btn.innerText = "⏳ Генерирую...";
+function logout() { localStorage.clear(); location.href = 'index.html'; }
 
-        for (let i = 0; i < 20; i++) {
-            try {
-                const name = "Атлет " + (allUsers.length + i + 1);
-                const weight = Math.floor(Math.random() * 60 + 60);
-                await fetch('/api/register', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        fio: name,
-                        password: "123",
-                        weight: weight,
-                        birthDate: "1995-01-01",
-                        rank: ranks[Math.floor(Math.random() * ranks.length)],
-                        gender: genders[Math.floor(Math.random() * genders.length)]
-                    })
-                });
-            } catch (e) { console.error(e); }
-        }
+// ========== ЗАЯВКИ НА ОРГАНИЗАТОРА ==========
+async function loadRequests() {
+    const container = document.getElementById('requestsGrid');
+    if (!container) return;
+    try {
+        const res = await fetch('/api/admin/organizer-requests');
+        const requests = await res.json();
+        currentRequests = requests;
+        renderRequests(requests);
+        updateRequestsBadge(requests.length);
+    } catch(e) { container.innerHTML = '<div class="loading">Ошибка загрузки</div>'; }
+}
 
-        btn.disabled = false;
-        btn.innerText = originalText;
-        alert("✅ 20 атлетов добавлены в базу!");
-        loadData();
+function renderRequests(requests) {
+    const container = document.getElementById('requestsGrid');
+    if (!requests.length) { container.innerHTML = '<div class="loading"> Нет новых заявок</div>'; return; }
+    let html = '';
+    for (let req of requests) {
+        html += `<div class="request-card">
+            <div class="request-name">${escapeHtml(req.FIO)}</div>
+            <div class="request-email"> ${escapeHtml(req.Email)}</div>
+            <div class="request-phone"> ${req.Phone || 'Не указан'}</div>
+            <div class="request-date"> ${req.CreatedAt ? formatDateAdmin(req.CreatedAt) : ''}</div>
+            <div class="request-actions">
+                <button class="btn btn-success btn-sm" onclick="quickApprove(${req.RequestID})"> Подтвердить</button>
+                <button class="btn btn-danger btn-sm" onclick="quickReject(${req.RequestID})"> Отклонить</button>
+            </div>
+        </div>`;
     }
+    container.innerHTML = html;
+}
 
-    function logout() { localStorage.clear(); location.href = 'index.html'; }
+async function quickApprove(requestId) {
+    if (!confirm('Подтвердить заявку и создать организатора?')) return;
+    try {
+        const res = await fetch('/api/admin/approve-organizer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId }) });
+        const result = await res.json();
+        if (result.success) { alert(' Организатор создан!'); await loadRequests(); loadData(); }
+        else alert(' Ошибка');
+    } catch(e) { alert('Ошибка сервера'); }
+}
 
-    // ===== ЗАЯВКИ НА ОРГАНИЗАТОРА =====
-    let currentRequests = [];
-    let selectedRequestId = null;
+async function quickReject(requestId) {
+    if (!confirm('Отклонить эту заявку?')) return;
+    try {
+        const res = await fetch('/api/admin/reject-request', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requestId }) });
+        if (res.ok) { alert(' Заявка отклонена'); await loadRequests(); }
+    } catch(e) { alert('Ошибка сервера'); }
+}
 
-    async function openRequestsModal() {
-        document.getElementById('requestsModal').style.display = 'flex';
-        await loadRequests();
+function updateRequestsBadge(count) {
+    const badge = document.getElementById('requestsBadge');
+    if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'inline-block' : 'none'; }
+}
+
+async function updateRequestsBadgeCount() {
+    try { const res = await fetch('/api/admin/organizer-requests'); const requests = await res.json(); updateRequestsBadge(requests.length); } catch(e) {}
+}
+
+// ========== ТУРНИРЫ ==========
+async function loadTournaments() {
+    try {
+        const res = await fetch('/api/competitions');
+        const comps = await res.json();
+        allTournaments = comps || [];
+        renderTournaments(allTournaments);
+    } catch(e) {
+        console.error(e);
+        document.getElementById('tournamentsGrid').innerHTML = '<div class="loading"> Ошибка загрузки турниров</div>';
     }
+}
 
-    function closeRequestsModal() { document.getElementById('requestsModal').style.display = 'none'; }
-    function closeDetailsModal() { document.getElementById('requestDetailsModal').style.display = 'none'; selectedRequestId = null; }
-
-    async function loadRequests() {
-        try {
-            const res = await fetch('/api/admin/organizer-requests');
-            const requests = await res.json();
-            currentRequests = requests;
-            renderRequests(requests);
-            updateRequestsBadge(requests.length);
-        } catch(e) {
-            console.error('Ошибка загрузки заявок:', e);
-            document.getElementById('requestsList').innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><h3>Ошибка загрузки</h3></div>`;
-        }
-    }
-
-    function renderRequests(requests) {
-        const container = document.getElementById('requestsList');
-        if (!requests || requests.length === 0) {
-            container.innerHTML = `<div class="empty-state"><div class="empty-icon">😴</div><h3>Нет новых заявок</h3></div>`;
-            return;
-        }
-        container.innerHTML = requests.map(req => `
-            <div class="request-card pending">
-                <div class="request-info-compact">
-                    <div class="request-name">${req.FIO}</div>
-                    <div class="request-email">
-                        <span>✉️ ${req.Email}</span>
-                        <span>📞 ${req.Phone || 'Не указан'}</span>
-                        <span>📅 ${new Date(req.CreatedAt).toLocaleDateString()}</span>
-                    </div>
+function renderTournaments(comps) {
+    const container = document.getElementById('tournamentsGrid');
+    if (!comps.length) { container.innerHTML = '<div class="loading"> Нет турниров</div>'; return; }
+    let html = '';
+    for (let c of comps) {
+        let statusClass = '', statusText = '';
+        if (c.Status === 'Completed') { statusClass = 'status-completed'; statusText = 'Завершен'; }
+        else if (c.Status === 'Active') { statusClass = 'status-active'; statusText = 'Активен'; }
+        else if (c.Status === 'Cancelled') { statusClass = 'status-cancelled'; statusText = 'Отменен'; }
+        else { statusClass = 'status-registration'; statusText = 'Регистрация'; }
+        html += `
+            <div class="tournament-card">
+                <div class="tournament-header">
+                    <div class="tournament-title">${escapeHtml(c.Title || 'Без названия')}</div>
+                    <span class="tournament-status ${statusClass}">${statusText}</span>
                 </div>
-                <div class="request-actions">
-                    <button class="btn-icon" onclick="showRequestDetails(${req.RequestID})" title="Подробнее">⋯</button>
-                    <button class="btn-icon approve" onclick="quickApprove(${req.RequestID})" title="Подтвердить">✅</button>
-                    <button class="btn-icon reject" onclick="quickReject(${req.RequestID})" title="Отклонить">❌</button>
+                <div class="tournament-info">
+                    <p> ${c.EventDate ? formatDateAdmin(c.EventDate) : 'Дата не указана'}</p>
+                    <p> ${c.Location || 'Не указано'}</p>
+                    <p> ${c.Level || 'Городские'}</p>
+                </div>
+                <div class="tournament-actions">
+                    <button class="btn btn-primary btn-sm" onclick="editTournament(${c.CompID})">Редактировать</button>
+                    <button class="delete-btn" onclick="deleteTournament(${c.CompID})">Удалить</button>
                 </div>
             </div>
-        `).join('');
-    }
-
-    function showRequestDetails(requestId) {
-        const request = currentRequests.find(r => r.RequestID === requestId);
-        if (!request) return;
-        selectedRequestId = requestId;
-        const detailsHtml = `
-            <div class="detail-row"><div class="detail-label">ФИО:</div><div class="detail-value"><b>${request.FIO}</b></div></div>
-            <div class="detail-row"><div class="detail-label">Email:</div><div class="detail-value">${request.Email}</div></div>
-            <div class="detail-row"><div class="detail-label">Телефон:</div><div class="detail-value">${request.Phone || 'Не указан'}</div></div>
-            <div class="detail-row"><div class="detail-label">Пароль:</div><div class="detail-value"><code>${request.Password}</code></div></div>
-            <div class="detail-row"><div class="detail-label">Дата:</div><div class="detail-value">${new Date(request.CreatedAt).toLocaleString()}</div></div>
-            ${request.Message ? `<div class="detail-row"><div class="detail-label">Опыт:</div><div class="detail-message">${request.Message}</div></div>` : ''}
         `;
-        document.getElementById('requestDetails').innerHTML = detailsHtml;
-        document.getElementById('requestDetailsModal').style.display = 'flex';
+    }
+    container.innerHTML = html;
+}
+
+function editTournament(compId) {
+    const tournament = allTournaments.find(c => c.CompID === compId);
+    if (!tournament) { alert('Турнир не найден'); return; }
+    document.getElementById('editCompId').value = tournament.CompID;
+    document.getElementById('editCompTitle').value = tournament.Title || '';
+    document.getElementById('editCompLocation').value = tournament.Location || '';
+    document.getElementById('editCompDate').value = tournament.EventDate || '';
+    document.getElementById('editCompMaxParticipants').value = tournament.MaxParticipants || 64;
+    document.getElementById('editCompLevel').value = tournament.Level || 'Городские';
+    document.getElementById('editCompStatus').value = tournament.Status || 'Registration';
+    document.getElementById('editCompCategories').value = tournament.Categories || '';
+    document.getElementById('editTournamentModal').style.display = 'flex';
+}
+
+function closeEditTournamentModal() { document.getElementById('editTournamentModal').style.display = 'none'; }
+
+async function saveTournamentEdit() {
+    const title = document.getElementById('editCompTitle').value.trim();
+    const location = document.getElementById('editCompLocation').value.trim();
+    const eventDate = document.getElementById('editCompDate').value;
+    const categories = document.getElementById('editCompCategories').value.trim();
+    const maxParticipantsVal = document.getElementById('editCompMaxParticipants').value;
+
+    if (!title || !location || !eventDate || !categories) { alert('Заполните все обязательные поля!'); return; }
+    if (title.length < 3) { alert('Название турнира должно содержать минимум 3 символа'); return; }
+    if (location.length < 3) { alert('Укажите место проведения (минимум 3 символа)'); return; }
+    const event = new Date(eventDate);
+    if (isNaN(event.getTime())) { alert('Введите корректную дату проведения'); return; }
+    const maxParticipants = maxParticipantsVal ? parseInt(maxParticipantsVal) : 64;
+    if (maxParticipantsVal && (isNaN(maxParticipants) || maxParticipants < 2 || maxParticipants > 256)) {
+        alert('Введите корректное максимальное количество участников (2-256)');
+        return;
     }
 
-    async function quickApprove(requestId) {
-        if (!confirm('Подтвердить заявку и создать организатора?')) return;
-        try {
-            const res = await fetch('/api/admin/approve-organizer', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ requestId }) });
-            const result = await res.json();
-            if (result.success) {
-                alert('✅ Организатор создан! Письмо отправлено.');
-                await loadRequests();
-                closeDetailsModal();
-            } else alert('❌ Ошибка: ' + (result.message || 'Не удалось создать организатора'));
-        } catch(e) { console.error(e); alert('Ошибка сервера'); }
-    }
+    const compId = document.getElementById('editCompId').value;
+    const payload = {
+        compId: parseInt(compId), title, location, eventDate,
+        maxParticipants, level: document.getElementById('editCompLevel').value,
+        status: document.getElementById('editCompStatus').value, categories
+    };
+    try {
+        const res = await fetch('/api/organizer/edit-competition', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const result = await res.json();
+        if (result.success) { alert(' Турнир успешно обновлен!'); closeEditTournamentModal(); await loadTournaments(); await loadProtocols(); }
+        else alert(' Ошибка: ' + (result.message || 'Не удалось обновить'));
+    } catch(e) { alert('Ошибка сервера'); }
+}
 
-    async function quickReject(requestId) {
-        if (!confirm('Отклонить эту заявку?')) return;
-        try {
-            const res = await fetch('/api/admin/reject-request', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ requestId }) });
-            if (res.ok) {
-                alert('✅ Заявка отклонена');
-                await loadRequests();
-                closeDetailsModal();
-            }
-        } catch(e) { console.error(e); alert('Ошибка сервера'); }
-    }
+async function deleteTournament(compId) {
+    if (!confirm(' Удалить турнир? Это действие НЕОБРАТИМО.')) return;
+    try {
+        const res = await fetch('/api/admin/delete-competition', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ compId }) });
+        const result = await res.json();
+        if (result.success) { alert(' Турнир удален!'); await loadTournaments(); await loadProtocols(); }
+        else alert(' Ошибка: ' + (result.message || 'Не удалось удалить'));
+    } catch(e) { alert('Ошибка сервера'); }
+}
 
-    function updateRequestsBadge(count) {
-        const badge = document.getElementById('requestsBadge');
-        if (badge) {
-            badge.textContent = count;
-            badge.style.display = count > 0 ? 'inline-block' : 'none';
+// ========== ПРОТОКОЛЫ (как в организаторе) ==========
+async function loadProtocols() {
+    try {
+        const res = await fetch('/api/competitions');
+        const comps = await res.json();
+        const completed = comps.filter(c => c.Status === 'Completed');
+        renderProtocols(completed);
+    } catch(e) {
+        console.error(e);
+        document.getElementById('protocolsGrid').innerHTML = '<div class="loading"> Ошибка загрузки</div>';
+    }
+}
+
+function renderProtocols(comps) {
+    const container = document.getElementById('protocolsGrid');
+    if (!comps.length) {
+        container.innerHTML = '<div class="loading"> Нет завершенных турниров</div>';
+        return;
+    }
+    let html = '';
+    for (let c of comps) {
+        html += `
+            <div class="protocol-card">
+                <div class="protocol-title">${escapeHtml(c.Title || 'Без названия')}</div>
+                <div class="protocol-date"> ${c.EventDate ? formatDateAdmin(c.EventDate) : 'Дата не указана'}</div>
+                <div class="tournament-actions">
+                    <button class="btn btn-primary btn-sm" onclick="viewProtocol(${c.CompID})">Смотреть протокол</button>
+                </div>
+            </div>
+        `;
+    }
+    container.innerHTML = html;
+}
+
+async function viewProtocol(compId) {
+    currentProtocolCompId = compId;
+    try {
+        const res = await fetch(`/api/get-protocol/${compId}`);
+        const data = await res.json();
+        if (data.success && data.results && data.results.length) {
+            currentProtocolData = data.results;
+            renderProtocolModal(data.results);
+            document.getElementById('protocolViewModal').style.display = 'flex';
+        } else {
+            alert('Протокол не найден');
         }
+    } catch(e) {
+        console.error(e);
+        alert('Ошибка загрузки протокола');
+    }
+}
+
+function renderProtocolModal(results) {
+    const container = document.getElementById('protocolViewContent');
+    if (!results.length) {
+        container.innerHTML = '<div class="loading">Нет данных</div>';
+        return;
     }
 
-    async function updateRequestsBadgeCount() {
-        try {
-            const res = await fetch('/api/admin/organizer-requests');
-            const requests = await res.json();
-            updateRequestsBadge(requests.length);
-        } catch(e) { console.error('Ошибка загрузки бейджа:', e); }
+    // Группируем по категориям
+    const grouped = {};
+    for (let r of results) {
+        if (!grouped[r.Category]) grouped[r.Category] = [];
+        grouped[r.Category].push(r);
     }
 
-    // ===== МАССОВАЯ ПОДАЧА ЗАЯВОК =====
-    async function openMassApplyModal() {
-        document.getElementById('massApplyModal').style.display = 'flex';
-        await loadTournamentsForApply();
-        updateApplyStats();
+    let html = '';
+    for (let cat in grouped) {
+        const athletes = grouped[cat];
+        // Сортируем по сумме побед (левая+правая)
+        athletes.sort((a,b) => (b.WinsLeft + b.WinsRight) - (a.WinsLeft + a.WinsRight));
+
+        html += `<div class="protocol-category" style="margin-bottom: 30px; border-left: 3px solid #f59e0b; padding-left: 15px;">
+            <h3 style="color: #f59e0b; margin-bottom: 15px;">${escapeHtml(cat)}</h3>`;
+
+        // Левая рука (все участники)
+        html += `<div style="margin-bottom: 20px;">
+            <h4 style="color: #ccc;">Левая рука</h4>
+            <table class="protocol-table">
+                <thead><tr><th>Место</th><th>Участник</th><th>Вес</th><th>Победы</th><th>Поражения</th></tr></thead>
+                <tbody>`;
+        const leftSorted = [...athletes].sort((a,b) => b.WinsLeft - a.WinsLeft);
+        leftSorted.forEach((a, idx) => {
+            html += `<tr>
+                <td style="text-align:center">${idx+1}<\/td>
+                <td><b>${escapeHtml(a.FIO)}<\/b> (${a.Gender === 'Женский' ? 'Ж' : 'М'})<\/td>
+                <td style="text-align:center">${a.Weight || '—'} кг<\/td>
+                <td style="text-align:center; color:#4ade80;">${a.WinsLeft || 0}<\/td>
+                <td style="text-align:center; color:#ef4444;">${a.LossesLeft || 0}<\/td>
+            </tr>`;
+        });
+        html += `</tbody></table></div>`;
+
+        // Правая рука (все участники)
+        html += `<div>
+            <h4 style="color: #ccc;">Правая рука</h4>
+            <table class="protocol-table">
+                <thead><tr><th>Место</th><th>Участник</th><th>Вес</th><th>Победы</th><th>Поражения</th></tr></thead>
+                <tbody>`;
+        const rightSorted = [...athletes].sort((a,b) => b.WinsRight - a.WinsRight);
+        rightSorted.forEach((a, idx) => {
+            html += `<tr>
+                <td style="text-align:center">${idx+1}<\/td>
+                <td><b>${escapeHtml(a.FIO)}<\/b> (${a.Gender === 'Женский' ? 'Ж' : 'М'})<\/td>
+                <td style="text-align:center">${a.Weight || '—'} кг<\/td>
+                <td style="text-align:center; color:#4ade80;">${a.WinsRight || 0}<\/td>
+                <td style="text-align:center; color:#ef4444;">${a.LossesRight || 0}<\/td>
+            </tr>`;
+        });
+        html += `</tbody></table></div>`;
+
+        html += `</div>`;
+    }
+    container.innerHTML = html;
+}
+
+function closeProtocolModal() {
+    document.getElementById('protocolViewModal').style.display = 'none';
+}
+
+function downloadProtocolPDF() {
+    if (!currentProtocolData || currentProtocolData.length === 0) {
+        alert(' Нет данных для формирования протокола!');
+        return;
     }
 
-    function closeMassApplyModal() { document.getElementById('massApplyModal').style.display = 'none'; }
+    // Получаем название турнира
+    const compName = allTournaments.find(t => t.CompID == currentProtocolCompId)?.Title || 'Турнир';
+    const currentDate = new Date().toLocaleString('ru-RU');
 
-    async function loadTournamentsForApply() {
-        try {
-            const res = await fetch('/api/competitions');
-            const comps = await res.json();
-            allTournaments = comps.filter(c => c.Status === 'Registration' && c.IsCompleted !== 1);
-            const select = document.getElementById('applyCompSelect');
-            if (allTournaments.length === 0) {
-                select.innerHTML = '<option value="">Нет доступных турниров</option>';
-            } else {
-                select.innerHTML = '<option value="">-- Выберите турнир --</option>' + 
-                    allTournaments.map(c => `<option value="${c.CompID}">${c.Title} (${c.EventDate})</option>`).join('');
-            }
-        } catch(e) {
-            console.error('Ошибка загрузки турниров:', e);
-            document.getElementById('applyCompSelect').innerHTML = '<option value="">Ошибка загрузки</option>';
+    // Группируем по категориям
+    const grouped = {};
+    for (let r of currentProtocolData) {
+        if (!grouped[r.Category]) grouped[r.Category] = [];
+        grouped[r.Category].push(r);
+    }
+
+    // Сортируем категории (по желанию)
+    const sortedCategories = Object.keys(grouped).sort();
+
+    // Формируем HTML для PDF
+    let html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Протокол соревнований</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                    padding: 20px;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 30px;
+                    border-bottom: 2px solid #000;
+                    padding-bottom: 10px;
+                }
+                .header h1 {
+                    font-size: 20px;
+                    margin-bottom: 5px;
+                }
+                .header p {
+                    font-size: 12px;
+                    color: #555;
+                    margin: 5px 0;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 25px;
+                }
+                th, td {
+                    border: 1px solid #000;
+                    padding: 8px;
+                    text-align: left;
+                    font-size: 11px;
+                }
+                th {
+                    background-color: #e0e0e0;
+                    font-weight: bold;
+                }
+                .category-row {
+                    background-color: #d0d0d0;
+                }
+                .category-row th {
+                    background-color: #c0c0c0;
+                    font-size: 14px;
+                    text-align: center;
+                }
+                .hand-row {
+                    background-color: #e8e8e8;
+                }
+                .hand-row th {
+                    background-color: #d8d8d8;
+                    text-align: center;
+                }
+                .footer {
+                    margin-top: 30px;
+                    font-size: 10px;
+                    text-align: center;
+                    color: #666;
+                    border-top: 1px solid #ccc;
+                    padding-top: 10px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>ПРОТОКОЛ СОРЕВНОВАНИЙ</h1>
+                <p><strong>${escapeHtml(compName)}</strong></p>
+                <p>Дата формирования: ${currentDate}</p>
+            </div>
+    `;
+
+    for (let cat of sortedCategories) {
+        const athletes = grouped[cat];
+        // Сортируем участников по сумме побед (левая+правая) для общего зачёта
+        athletes.sort((a,b) => (b.WinsLeft + b.WinsRight) - (a.WinsLeft + a.WinsRight));
+
+        // Заголовок категории
+        html += `<table>`;
+        html += `<tr class="category-row"><th colspan="5">${escapeHtml(cat)}</th></tr>`;
+
+        // Левая рука
+        html += `<tr class="hand-row"><th colspan="5">Левая рука</th></tr>`;
+        html += `<tr>
+                    <th style="width:15%">Место</th>
+                    <th style="width:40%">Участник</th>
+                    <th style="width:15%">Вес (кг)</th>
+                    <th style="width:15%">Победы</th>
+                    <th style="width:15%">Поражения</th>
+                 </tr>`;
+        // Сортируем по левой руке
+        const leftSorted = [...athletes].sort((a,b) => b.WinsLeft - a.WinsLeft);
+        for (let i = 0; i < leftSorted.length; i++) {
+            const a = leftSorted[i];
+            html += `<tr>
+                        <td style="text-align:center">${i+1}</td>
+                        <td>${escapeHtml(a.FIO)}</td>
+                        <td style="text-align:center">${a.Weight || '—'}</td>
+                        <td style="text-align:center">${a.WinsLeft || 0}</td>
+                        <td style="text-align:center">${a.LossesLeft || 0}</td>
+                     </tr>`;
         }
+
+        // Правая рука
+        html += `<tr class="hand-row"><th colspan="5">Правая рука</th></tr>`;
+        html += `<tr>
+                    <th>Место</th>
+                    <th>Участник</th>
+                    <th>Вес (кг)</th>
+                    <th>Победы</th>
+                    <th>Поражения</th>
+                 </tr>`;
+        const rightSorted = [...athletes].sort((a,b) => b.WinsRight - a.WinsRight);
+        for (let i = 0; i < rightSorted.length; i++) {
+            const a = rightSorted[i];
+            html += `<tr>
+                        <td style="text-align:center">${i+1}</td>
+                        <td>${escapeHtml(a.FIO)}</td>
+                        <td style="text-align:center">${a.Weight || '—'}</td>
+                        <td style="text-align:center">${a.WinsRight || 0}</td>
+                        <td style="text-align:center">${a.LossesRight || 0}</td>
+                     </tr>`;
+        }
+        html += `</table>`;
     }
 
-    function updateApplyStats() {
-        const userCount = allUsers.filter(u => u.Role === 'User').length;
-        document.getElementById('totalUsersCount').innerText = userCount;
-        document.getElementById('applyCount').innerText = userCount;
-    }
+    html += `
+            <div class="footer">
+                <p>Протокол сгенерирован автоматически в системе ARM SYSTEM PRO</p>
+            </div>
+        </body>
+        </html>
+    `;
 
-    async function submitMassApply() {
-        const compId = document.getElementById('applyCompSelect').value;
-        if (!compId) { alert('❌ Выберите турнир!'); return; }
-        const tournament = allTournaments.find(t => t.CompID == compId);
-        const userCount = allUsers.filter(u => u.Role === 'User').length;
-        if (!confirm(`Подтвердите массовую подачу заявок для ${userCount} пользователей на турнир "${tournament?.Title}"?`)) return;
-        try {
-            const res = await fetch('/api/admin/apply-all', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ compId: parseInt(compId) }) });
-            const result = await res.json();
-            if (result.success) { alert(`✅ Успешно подано ${result.count} заявок!`); closeMassApplyModal(); }
-            else alert('❌ Ошибка: ' + (result.message || 'Не удалось подать заявки'));
-        } catch(e) { console.error('Ошибка:', e); alert('❌ Ошибка сервера'); }
-    }
+    // Создаём iframe для генерации PDF
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.left = '-9999px';
+    iframe.style.top = '-9999px';
+    document.body.appendChild(iframe);
 
-    // Обработчик закрытия модалок
-    window.onclick = function(event) {
-        if (event.target === document.getElementById('massApplyModal')) closeMassApplyModal();
-        if (event.target === document.getElementById('requestsModal')) closeRequestsModal();
-        if (event.target === document.getElementById('requestDetailsModal')) closeDetailsModal();
-        if (event.target === document.getElementById('editModal')) closeModal();
-    }
+    iframe.contentWindow.document.open();
+    iframe.contentWindow.document.write(html);
+    iframe.contentWindow.document.close();
 
-    // Инициализация
-    window.onload = loadData;
+    setTimeout(() => {
+        const opt = {
+            margin: [10, 10, 10, 10],
+            filename: `protocol_${currentProtocolCompId}_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(iframe.contentWindow.document.body).save().then(() => {
+            document.body.removeChild(iframe);
+        }).catch(err => {
+            console.error('Ошибка PDF:', err);
+            alert('Ошибка при создании PDF');
+            document.body.removeChild(iframe);
+        });
+    }, 500);
+}
+// ========== МАССОВАЯ ПОДАЧА ==========
+async function openMassApplyModal() {
+    document.getElementById('massApplyModal').style.display = 'flex';
+    await loadTournamentsForApply();
+    updateApplyStats();
+}
+function closeMassApplyModal() { document.getElementById('massApplyModal').style.display = 'none'; }
+
+async function loadTournamentsForApply() {
+    try {
+        const res = await fetch('/api/competitions');
+        const comps = await res.json();
+        const available = comps.filter(c => c.Status !== 'Completed' && c.Status !== 'Cancelled');
+        const select = document.getElementById('applyCompSelect');
+        if (!available.length) {
+            select.innerHTML = '<option value="">Нет доступных турниров</option>';
+            return;
+        }
+        let options = '<option value="">-- Выберите турнир --</option>';
+        for (let c of available) {
+            options += `<option value="${c.CompID}">${escapeHtml(c.Title)} (${c.EventDate ? formatDateAdmin(c.EventDate) : '—'})</option>`;
+        }
+        select.innerHTML = options;
+    } catch(e) {
+        console.error(e);
+        document.getElementById('applyCompSelect').innerHTML = '<option value="">Ошибка загрузки</option>';
+    }
+}
+
+function updateApplyStats() {
+    const userCount = allUsers.filter(u => u.Role === 'User').length;
+    document.getElementById('totalUsersCount').innerText = userCount;
+    document.getElementById('applyCount').innerText = userCount;
+}
+
+async function submitMassApply() {
+    const compId = document.getElementById('applyCompSelect').value;
+    if (!compId) { alert(' Выберите турнир!'); return; }
+    const userCount = allUsers.filter(u => u.Role === 'User').length;
+    if (!confirm(`Подтвердите массовую подачу заявок для ${userCount} пользователей?`)) return;
+    try {
+        const res = await fetch('/api/admin/apply-all', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ compId: parseInt(compId) }) });
+        const result = await res.json();
+        if (result.success) { alert(` Успешно подано ${result.count} заявок!`); closeMassApplyModal(); }
+        else alert(' Ошибка');
+    } catch(e) { alert(' Ошибка сервера'); }
+}
+
+// ========== ВСПОМОГАТЕЛЬНЫЕ ==========
+function formatDateAdmin(dateStr) {
+    if (!dateStr) return '';
+    const parts = dateStr.split('.');
+    if (parts.length === 3) return dateStr;
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}.${month}.${year}`;
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
+// ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ==========
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.onclick = function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        const tabId = this.getAttribute('data-tab') + 'Tab';
+        document.getElementById(tabId).classList.add('active');
+        if (this.getAttribute('data-tab') === 'requests') loadRequests();
+        if (this.getAttribute('data-tab') === 'tournaments') loadTournaments();
+        if (this.getAttribute('data-tab') === 'protocols') loadProtocols();
+    };
+});
+
+window.onclick = function(event) {
+    if (event.target === document.getElementById('massApplyModal')) closeMassApplyModal();
+    if (event.target === document.getElementById('editModal')) closeModal();
+    if (event.target === document.getElementById('protocolViewModal')) closeProtocolModal();
+    if (event.target === document.getElementById('editTournamentModal')) closeEditTournamentModal();
+};
+
+window.onload = function() {
+    loadData();
+    loadTournaments();
+    loadProtocols();
     setInterval(updateRequestsBadgeCount, 30000);
+};
 </script>
 </body>
 </html>
