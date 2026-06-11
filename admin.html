@@ -110,19 +110,12 @@
     <div class="container">
         <div class="logo" onclick="location.href='index.html'">ARM <span>ADMIN</span></div>
         <div class="header-buttons">
-            <button class="btn btn-primary" onclick="openMassApplyModal()">Массовая подача</button>
-            <button class="btn btn-danger" onclick="logout()">Выход</button>
+          
+            <button class="btn btn-danger" onclick="logout()">Выйти</button>
         </div>
     </div>
 </header>
 <div class="main-container">
-    <div class="card admin-tools">
-        <h3>Быстрые действия</h3>
-        <div class="admin-buttons">
-            <button class="btn btn-primary" onclick="openMassApplyModal()">Массовая подача заявок</button>
-            <button class="btn btn-warning" id="genBtn" onclick="generateFakeUsers()">Сгенерировать 20 атлетов</button>
-        </div>
-    </div>
     <div class="tabs">
         <button class="tab-btn active" data-tab="users">Пользователи</button>
         <button class="tab-btn" data-tab="requests">Заявки на организатора <span id="requestsBadge" class="badge-count">0</span></button>
@@ -265,7 +258,7 @@ function renderTable(data) {
         html += `<tr>
             <td style="color:#64748b">#${u.UserID}<\/td>
             <td><b>${escapeHtml(u.FIO || '')}<\/b><\/td>
-            <td>${u.Weight || 0} кг<\/td>
+            <td>${u.Weight ? u.Weight + ' кг' : '—'}<\/td>
             <td><span class="badge badge-rank">${u.Rank || 'Б/Р'}<\/span><\/td>
             <td>${u.Gender === 'Женский' ? 'Женский' : 'Мужской'}<\/td>
             <td style="color:#f59e0b">${u.SkillLevel || 0}<\/td>
@@ -298,9 +291,9 @@ function applyFilters() {
 
     // Сортировка
     if (sort === 'weight-desc') {
-        filtered.sort((a, b) => (b.Weight || 0) - (a.Weight || 0));
+        filtered.sort((a, b) => (b.Weight ?? 0) - (a.Weight ?? 0));
     } else if (sort === 'weight-asc') {
-        filtered.sort((a, b) => (a.Weight || 0) - (b.Weight || 0));
+        filtered.sort((a, b) => (a.Weight ?? 0) - (b.Weight ?? 0));
     }
 
     renderTable(filtered);
@@ -403,7 +396,6 @@ async function generateFakeUsers() {
 
 function logout() { localStorage.clear(); location.href = 'index.html'; }
 
-// ========== ЗАЯВКИ НА ОРГАНИЗАТОРА ==========
 async function loadRequests() {
     const container = document.getElementById('requestsGrid');
     if (!container) return;
@@ -630,47 +622,67 @@ function renderProtocolModal(results) {
         grouped[r.Category].push(r);
     }
 
-    let html = '';
-    for (let cat in grouped) {
+    // Сортируем категории: женские первые, потом мужские, по весу
+    const sortCats = (cats) => {
+        let women = cats.filter(c => c.includes('Женщины')).sort((a,b) => (parseInt(a.match(/\d+/)||999) - parseInt(b.match(/\d+/)||999)));
+        let men = cats.filter(c => c.includes('Мужчины')).sort((a,b) => (parseInt(a.match(/\d+/)||999) - parseInt(b.match(/\d+/)||999)));
+        return [...women, ...men];
+    };
+    const sortedCats = sortCats(Object.keys(grouped));
+
+    const totalAthletes = results.length;
+    let html = `<div style="text-align:center; margin-bottom:25px;">
+        <h2 style="color:#f59e0b; font-size:22px;">🏆 ИТОГОВЫЙ ПРОТОКОЛ ТУРНИРА</h2>
+        <p style="color:#888; font-size:13px;">${escapeHtml(allTournaments.find(t => t.CompID == currentProtocolCompId)?.Title || 'Турнир')}</p>
+        <p style="color:#666; font-size:12px; margin-top:5px;">Всего участников: <b>${totalAthletes}</b></p>
+    </div>`;
+
+    for (let cat of sortedCats) {
         const athletes = grouped[cat];
-        // Сортируем по сумме побед (левая+правая)
-        athletes.sort((a,b) => (b.WinsLeft + b.WinsRight) - (a.WinsLeft + a.WinsRight));
 
         html += `<div class="protocol-category" style="margin-bottom: 30px; border-left: 3px solid #f59e0b; padding-left: 15px;">
-            <h3 style="color: #f59e0b; margin-bottom: 15px;">${escapeHtml(cat)}</h3>`;
+            <h3 style="color: #f59e0b; margin-bottom: 15px;">📌 ${escapeHtml(cat)} <small style="color:#888; font-size:14px;">(${athletes.length} участников)</small></h3>`;
 
-        // Левая рука (все участники)
-        html += `<div style="margin-bottom: 20px;">
-            <h4 style="color: #ccc;">Левая рука</h4>
+        // Левая рука
+        const leftSorted = [...athletes].sort((a,b) => b.WinsLeft - a.WinsLeft);
+        html += `<div class="protocol-hand" style="margin-bottom:20px; background:#2A2A2A; padding:12px; border-radius:8px;">
+            <h4 style="color:#ccc; margin-bottom:10px;">🤚 Левая рука</h4>
             <table class="protocol-table">
                 <thead><tr><th>Место</th><th>Участник</th><th>Вес</th><th>Победы</th><th>Поражения</th></tr></thead>
                 <tbody>`;
-        const leftSorted = [...athletes].sort((a,b) => b.WinsLeft - a.WinsLeft);
         leftSorted.forEach((a, idx) => {
+            let medal = '';
+            if (idx === 0) medal = '🥇 ';
+            else if (idx === 1) medal = '🥈 ';
+            else if (idx === 2) medal = '🥉 ';
             html += `<tr>
-                <td style="text-align:center">${idx+1}<\/td>
-                <td><b>${escapeHtml(a.FIO)}<\/b> (${a.Gender === 'Женский' ? 'Ж' : 'М'})<\/td>
-                <td style="text-align:center">${a.Weight || '—'} кг<\/td>
-                <td style="text-align:center; color:#4ade80;">${a.WinsLeft || 0}<\/td>
-                <td style="text-align:center; color:#ef4444;">${a.LossesLeft || 0}<\/td>
+                <td style="text-align:center">${medal}${idx + 1}</td>
+                <td><b>${escapeHtml(a.FIO)}</b> ${a.Gender === 'Женский' ? '👩' : '👨'}</td>
+                <td style="text-align:center">${a.Weight != null && a.Weight > 0 ? a.Weight + ' кг' : '—'}</td>
+                <td style="text-align:center; color:#4ade80;">${a.WinsLeft || 0}</td>
+                <td style="text-align:center; color:#ef4444;">${a.LossesLeft || 0}</td>
             </tr>`;
         });
         html += `</tbody></table></div>`;
 
-        // Правая рука (все участники)
-        html += `<div>
-            <h4 style="color: #ccc;">Правая рука</h4>
+        // Правая рука
+        const rightSorted = [...athletes].sort((a,b) => b.WinsRight - a.WinsRight);
+        html += `<div class="protocol-hand" style="background:#2A2A2A; padding:12px; border-radius:8px;">
+            <h4 style="color:#ccc; margin-bottom:10px;">🤚 Правая рука</h4>
             <table class="protocol-table">
                 <thead><tr><th>Место</th><th>Участник</th><th>Вес</th><th>Победы</th><th>Поражения</th></tr></thead>
                 <tbody>`;
-        const rightSorted = [...athletes].sort((a,b) => b.WinsRight - a.WinsRight);
         rightSorted.forEach((a, idx) => {
+            let medal = '';
+            if (idx === 0) medal = '🥇 ';
+            else if (idx === 1) medal = '🥈 ';
+            else if (idx === 2) medal = '🥉 ';
             html += `<tr>
-                <td style="text-align:center">${idx+1}<\/td>
-                <td><b>${escapeHtml(a.FIO)}<\/b> (${a.Gender === 'Женский' ? 'Ж' : 'М'})<\/td>
-                <td style="text-align:center">${a.Weight || '—'} кг<\/td>
-                <td style="text-align:center; color:#4ade80;">${a.WinsRight || 0}<\/td>
-                <td style="text-align:center; color:#ef4444;">${a.LossesRight || 0}<\/td>
+                <td style="text-align:center">${medal}${idx + 1}</td>
+                <td><b>${escapeHtml(a.FIO)}</b> ${a.Gender === 'Женский' ? '👩' : '👨'}</td>
+                <td style="text-align:center">${a.Weight != null && a.Weight > 0 ? a.Weight + ' кг' : '—'}</td>
+                <td style="text-align:center; color:#4ade80;">${a.WinsRight || 0}</td>
+                <td style="text-align:center; color:#ef4444;">${a.LossesRight || 0}</td>
             </tr>`;
         });
         html += `</tbody></table></div>`;
@@ -701,8 +713,13 @@ function downloadProtocolPDF() {
         grouped[r.Category].push(r);
     }
 
-    // Сортируем категории (по желанию)
-    const sortedCategories = Object.keys(grouped).sort();
+    // Сортируем категории: женские первые, потом мужские
+    const sortCats = (cats) => {
+        let women = cats.filter(c => c.includes('Женщины')).sort((a,b) => (parseInt(a.match(/\d+/)||999) - parseInt(b.match(/\d+/)||999)));
+        let men = cats.filter(c => c.includes('Мужчины')).sort((a,b) => (parseInt(a.match(/\d+/)||999) - parseInt(b.match(/\d+/)||999)));
+        return [...women, ...men];
+    };
+    const sortedCategories = sortCats(Object.keys(grouped));
 
     // Формируем HTML для PDF
     let html = `
@@ -800,16 +817,19 @@ function downloadProtocolPDF() {
                  </tr>`;
         // Сортируем по левой руке
         const leftSorted = [...athletes].sort((a,b) => b.WinsLeft - a.WinsLeft);
-        for (let i = 0; i < leftSorted.length; i++) {
-            const a = leftSorted[i];
+        leftSorted.forEach((a, idx) => {
+            let medal = '';
+            if (idx === 0) medal = '🥇 ';
+            else if (idx === 1) medal = '🥈 ';
+            else if (idx === 2) medal = '🥉 ';
             html += `<tr>
-                        <td style="text-align:center">${i+1}</td>
+                        <td style="text-align:center">${medal}${idx + 1}</td>
                         <td>${escapeHtml(a.FIO)}</td>
-                        <td style="text-align:center">${a.Weight || '—'}</td>
+                        <td style="text-align:center">${a.Weight != null && a.Weight > 0 ? a.Weight : '—'}</td>
                         <td style="text-align:center">${a.WinsLeft || 0}</td>
                         <td style="text-align:center">${a.LossesLeft || 0}</td>
                      </tr>`;
-        }
+        });
 
         // Правая рука
         html += `<tr class="hand-row"><th colspan="5">Правая рука</th></tr>`;
@@ -821,16 +841,19 @@ function downloadProtocolPDF() {
                     <th>Поражения</th>
                  </tr>`;
         const rightSorted = [...athletes].sort((a,b) => b.WinsRight - a.WinsRight);
-        for (let i = 0; i < rightSorted.length; i++) {
-            const a = rightSorted[i];
+        rightSorted.forEach((a, idx) => {
+            let medal = '';
+            if (idx === 0) medal = '🥇 ';
+            else if (idx === 1) medal = '🥈 ';
+            else if (idx === 2) medal = '🥉 ';
             html += `<tr>
-                        <td style="text-align:center">${i+1}</td>
+                        <td style="text-align:center">${medal}${idx + 1}</td>
                         <td>${escapeHtml(a.FIO)}</td>
-                        <td style="text-align:center">${a.Weight || '—'}</td>
+                        <td style="text-align:center">${a.Weight != null && a.Weight > 0 ? a.Weight : '—'}</td>
                         <td style="text-align:center">${a.WinsRight || 0}</td>
                         <td style="text-align:center">${a.LossesRight || 0}</td>
                      </tr>`;
-        }
+        });
         html += `</table>`;
     }
 

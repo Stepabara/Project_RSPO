@@ -91,6 +91,8 @@ db.serialize(() => {
         Place INTEGER,
         UserID INTEGER,
         FIO TEXT,
+        Weight REAL DEFAULT 0,
+        Gender TEXT DEFAULT 'Мужской',
         WinsLeft INTEGER DEFAULT 0,
         WinsRight INTEGER DEFAULT 0,
         LossesLeft INTEGER DEFAULT 0,
@@ -136,55 +138,161 @@ db.serialize(() => {
     });
 
     // ========================================
+    // МИГРАЦИЯ: Добавляем Weight и Gender в Protocols
+    // ========================================
+    db.all("PRAGMA table_info(Protocols)", (err, rows) => {
+        if (err) return;
+        const hasWeight = rows.some(row => row.name === 'Weight');
+        if (!hasWeight) {
+            db.run("ALTER TABLE Protocols ADD COLUMN Weight REAL DEFAULT 0", (err) => {
+                if (err) console.error("Ошибка добавления Weight:", err);
+                else console.log("✅ Добавлена колонка Weight в Protocols");
+            });
+        }
+        const hasGender = rows.some(row => row.name === 'Gender');
+        if (!hasGender) {
+            db.run("ALTER TABLE Protocols ADD COLUMN Gender TEXT DEFAULT 'Мужской'", (err) => {
+                if (err) console.error("Ошибка добавления Gender:", err);
+                else console.log("✅ Добавлена колонка Gender в Protocols");
+            });
+        }
+    });
+
+    // ========================================
     // ТЕСТОВЫЕ ДАННЫЕ
     // ========================================
-    
-    // Админ по умолчанию (пол не указываем)
-    const adminFio = 'adm';
-    const adminPass = '123123';
-    const adminEmail = 'adm@localhost.com';
-    
-    db.get("SELECT * FROM Users WHERE Email = ?", [adminEmail], (err, row) => {
-        if (!row) {
-            db.run(`INSERT INTO Users (FIO, Password, Role, Email)
-                   VALUES (?, ?, 'Admin', ?)`, [adminFio, adminPass, adminEmail]);
-            console.log(`✅ Создан администратор: ${adminEmail} / ${adminPass}`);
-        }
-    });
 
-    // Тестовый организатор (пол не указываем)
-    db.get("SELECT * FROM Users WHERE Email = ?", ['org@test.by'], (err, row) => {
-        if (!row) {
-            db.run(`INSERT INTO Users (FIO, Password, Role, Email, Phone, Rank, Weight)
-                   VALUES ('Организатор Test', '123', 'Organizer', 'org@test.by', '+375291234567', 'МС', 85)`);
-            console.log("✅ Создан тестовый организатор: org@test.by / 123");
-        }
-    });
+    // ========================================
+    // ТЕСТОВЫЕ ДАННЫЕ (последовательно через serialize)
+    // ========================================
 
-    // Тестовые атлеты (с указанием пола)
+    // Админ
+    db.run(`INSERT OR IGNORE INTO Users (FIO, Password, Role, Email, Weight, Gender)
+           VALUES ('adm', '123123', 'Admin', 'adm@localhost.com', 80, 'Мужской')`);
+    console.log("✅ Администратор: adm@localhost.com / 123123");
+
+    // Организатор
+    db.run(`INSERT OR IGNORE INTO Users (FIO, Password, Role, Email, Phone, Rank, Weight, Gender)
+           VALUES ('org', '123123', 'Organizer', 'org@test.by', '+375291234567', 'МС', 85, 'Мужской')`);
+    console.log("✅ Организатор: org@test.by / 123123");
+
+    // Атлеты (8 мужчин + 4 женщины)
     const testAthletes = [
-        {fio: 'Иванов Иван', weight: 75, rank: 'КМС', gender: 'Мужской', email: 'ivan@test.by', phone: '+375291111111'},
-        {fio: 'Петрова Анна', weight: 65, rank: '1 разряд', gender: 'Женский', email: 'anna@test.by', phone: '+375292222222'},
-        {fio: 'Сидоров Сидор', weight: 85, rank: 'МС', gender: 'Мужской', email: 'sidor@test.by', phone: '+375293333333'},
-        {fio: 'Козлова Елена', weight: 58, rank: 'КМС', gender: 'Женский', email: 'elena@test.by', phone: '+375294444444'},
-        {fio: 'Смирнов Алексей', weight: 95, rank: 'МСМК', gender: 'Мужской', email: 'alex@test.by', phone: '+375295555555'}
+        {fio: 'Иванов Иван', weight: 68, rank: 'КМС', gender: 'Мужской', email: 'ivan@test.by', phone: '+375291111111'},
+        {fio: 'Петров Пётр', weight: 74, rank: '1 разряд', gender: 'Мужской', email: 'petrov@test.by', phone: '+375292222222'},
+        {fio: 'Сидоров Сидор', weight: 82, rank: 'МС', gender: 'Мужской', email: 'sidor@test.by', phone: '+375293333333'},
+        {fio: 'Козлов Дмитрий', weight: 90, rank: 'МС', gender: 'Мужской', email: 'kozlov@test.by', phone: '+375294444444'},
+        {fio: 'Смирнов Алексей', weight: 105, rank: 'МСМК', gender: 'Мужской', email: 'alex@test.by', phone: '+375295555555'},
+        {fio: 'Николаев Артём', weight: 78, rank: 'КМС', gender: 'Мужской', email: 'nikolaev@test.by', phone: '+375296666666'},
+        {fio: 'Фёдоров Максим', weight: 88, rank: '1 разряд', gender: 'Мужской', email: 'fedorov@test.by', phone: '+375297777777'},
+        {fio: 'Орлов Виктор', weight: 98, rank: 'МСМК', gender: 'Мужской', email: 'orlov@test.by', phone: '+375298888888'},
+        {fio: 'Петрова Анна', weight: 55, rank: '1 разряд', gender: 'Женский', email: 'anna@test.by', phone: '+375299999999'},
+        {fio: 'Козлова Елена', weight: 62, rank: 'КМС', gender: 'Женский', email: 'elena@test.by', phone: '+375291112222'},
+        {fio: 'Новикова Мария', weight: 68, rank: 'КМС', gender: 'Женский', email: 'novikova@test.by', phone: '+375291133333'},
+        {fio: 'Морокова Ольга', weight: 75, rank: 'МС', gender: 'Женский', email: 'morokova@test.by', phone: '+375291144444'}
     ];
 
-    testAthletes.forEach((athlete) => {
-        db.get("SELECT * FROM Users WHERE Email = ?", [athlete.email], (err, row) => {
-            if (!row) {
-                db.run(`INSERT INTO Users (FIO, Password, Weight, Rank, Role, Email, Phone, Gender)
-                       VALUES (?, '123', ?, ?, 'User', ?, ?, ?)`,
-                    [athlete.fio, athlete.weight, athlete.rank, athlete.email, athlete.phone, athlete.gender]);
-                console.log(`✅ Создан тестовый атлет: ${athlete.fio} (${athlete.gender})`);
+    const athStmt = db.prepare(`INSERT OR IGNORE INTO Users (FIO, Password, Weight, Rank, SkillLevel, Role, Email, Phone, Gender)
+                                VALUES (?, '123', ?, ?, ?, 'User', ?, ?, ?)`);
+    testAthletes.forEach(a => {
+        let skill = 50;
+        if (a.rank === 'МСМК') skill = 95 + Math.floor(Math.random() * 6);
+        else if (a.rank === 'МС') skill = 85 + Math.floor(Math.random() * 10);
+        else if (a.rank === 'КМС') skill = 70 + Math.floor(Math.random() * 15);
+        else skill = 40 + Math.floor(Math.random() * 30);
+        athStmt.run(a.fio, a.weight, a.rank, skill, a.email, a.phone, a.gender);
+        console.log(`✅ Атлет: ${a.fio} (${a.gender}) — ${a.weight}кг, ${a.rank}`);
+    });
+    athStmt.finalize();
+
+    // Турнир 1 — открытый для регистрации
+    db.run(`INSERT OR IGNORE INTO Competitions
+           (Title, Location, EventDate, OrganizerID, OrganizerFIO, Status, Categories, Level, LevelRank, MaxParticipants)
+           VALUES ('Кубок Минска 2025', 'Минск, Дворец спорта', '2025-12-15', 2, 'org', 'Registration',
+                   'Женщины До 60кг,Женщины До 70кг,Женщины Свыше 70кг,Мужчины До 70кг,Мужчины До 80кг,Мужчины До 90кг,Мужчины Свыше 90кг',
+                   'Городские', 2, 64)`);
+    console.log("✅ Турнир: Кубок Минска 2025 (Registration)");
+
+    // Турнир 2 — завершённый, с протоколом
+    db.run(`INSERT OR IGNORE INTO Competitions
+           (Title, Location, EventDate, OrganizerID, OrganizerFIO, Status, Categories, Level, LevelRank, MaxParticipants, IsCompleted)
+           VALUES ('Чемпионат РБ 2025', 'Гродно, СК Олимпийский', '2025-06-20', 2, 'org', 'Completed',
+                   'Женщины До 60кг,Женщины До 70кг,Женщины Свыше 70кг,Мужчины До 70кг,Мужчины До 80кг,Мужчины До 90кг,Мужчины Свыше 90кг',
+                   'Республиканские', 3, 128, 1)`);
+    console.log("✅ Турнир: Чемпионат РБ 2025 (Completed)");
+
+    // Заполняем протокол для завершённого турнира (CompID = 2)
+    const categories = ['Женщины До 60кг', 'Женщины До 70кг', 'Женщины Свыше 70кг',
+                       'Мужчины До 70кг', 'Мужчины До 80кг', 'Мужчины До 90кг', 'Мужчины Свыше 90кг'];
+
+    db.all("SELECT * FROM Users WHERE Role = 'User' ORDER BY Gender, Weight", [], (err, athletes) => {
+        if (!athletes || athletes.length === 0) return;
+
+        const assigned = {};
+        athletes.forEach(a => {
+            for (let cat of categories) {
+                const genderMatch = (a.Gender === 'Женский' && cat.includes('Женщины')) ||
+                                   (a.Gender === 'Мужской' && cat.includes('Мужчины'));
+                if (!genderMatch) continue;
+                const nums = cat.match(/\d+/g);
+                if (!nums) continue;
+                if (cat.includes('До') && nums.length === 1 && a.Weight <= parseInt(nums[0])) {
+                    if (!assigned[cat]) assigned[cat] = [];
+                    assigned[cat].push(a); break;
+                } else if (cat.includes('Свыше') && a.Weight > parseInt(nums[0])) {
+                    if (!assigned[cat]) assigned[cat] = [];
+                    assigned[cat].push(a); break;
+                }
             }
         });
+
+        const stmt = db.prepare(`INSERT INTO Protocols (CompID, Category, UserID, FIO, Weight, Gender, WinsLeft, WinsRight, LossesLeft, LossesRight)
+                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+        for (let cat of categories) {
+            const aths = assigned[cat];
+            if (!aths || aths.length === 0) continue;
+            const withResults = aths.map(a => ({
+                ...a, winsL: Math.floor(Math.random() * aths.length), winsR: Math.floor(Math.random() * aths.length),
+                lossesL: Math.floor(Math.random() * 3), lossesR: Math.floor(Math.random() * 3)
+            }));
+            withResults.sort((a, b) => (b.winsL + b.winsR) - (a.winsL + a.winsR));
+            withResults.forEach(a => {
+                stmt.run(2, cat, a.UserID, a.FIO, a.Weight, a.Gender, a.winsL, a.winsR, a.lossesL, a.lossesR);
+            });
+            console.log(`  📋 ${cat}: ${aths.length} участников`);
+        }
+        stmt.finalize();
+        console.log("✅ Протокол Чемпионата РБ 2025 заполнен");
     });
 
-    console.log("✅ База данных ARM BY полностью инициализирована!");
-    console.log("📊 Таблицы: Users, Competitions, Applications, OrganizerRequests, Protocols");
-    console.log("🏆 Уровни соревнований: Районные (1), Городские (2), Республиканские (3)");
-    console.log("👥 Пользователи теперь имеют поле Gender (Мужской/Женский)");
+    // Заявки атлетов на открытый турнир (IsPaid = 1 чтобы были в подтверждённых)
+    const appStmt = db.prepare(`INSERT OR IGNORE INTO Applications (UserID, CompID, IsPaid, Status, Category) VALUES (?, 1, 1, 'Approved', ?)`);
+    const catMap = {};
+    testAthletes.forEach(a => {
+        for (let cat of categories) {
+            const genderMatch = (a.gender === 'Женский' && cat.includes('Женщины')) ||
+                               (a.gender === 'Мужской' && cat.includes('Мужчины'));
+            if (!genderMatch) continue;
+            const nums = cat.match(/\d+/g);
+            if (!nums) continue;
+            if (cat.includes('До') && nums.length === 1 && a.weight <= parseInt(nums[0])) {
+                catMap[a.email] = cat; break;
+            } else if (cat.includes('Свыше') && a.weight > parseInt(nums[0])) {
+                catMap[a.email] = cat; break;
+            }
+        }
+    });
+    db.all("SELECT UserID, Email FROM Users WHERE Role = 'User'", [], (err, users) => {
+        users.forEach(u => {
+            if (catMap[u.Email]) {
+                appStmt.run(u.UserID, catMap[u.Email]);
+            }
+        });
+        appStmt.finalize();
+        console.log("✅ Заявки атлетов на Кубок Минска 2025 созданы (IsPaid=1)");
+    });
+
+    console.log("\\n✅ База данных ARM BY полностью инициализирована!");
 });
 
 module.exports = db;

@@ -394,7 +394,7 @@ app.post('/api/organizer/approve', (req, res) => {
     db.get("SELECT c.Title FROM Applications a JOIN Competitions c ON a.CompID = c.CompID WHERE a.AppID = ?", [appId], (err, comp) => {
         if (err) return res.status(500).json({ success: false });
 
-        db.run("UPDATE Applications SET Status = 'Approved', Category = ? WHERE AppID = ?", [category, appId], async function(err) {
+        db.run("UPDATE Applications SET Status = 'Approved', IsPaid = 1, Category = ? WHERE AppID = ?", [category, appId], async function(err) {
             if (err) return res.status(500).json({ success: false });
 
             try {
@@ -605,9 +605,9 @@ app.post('/api/save-protocol', (req, res) => {
         
         // Вставляем новые результаты
         results.forEach(r => {
-            const query = `INSERT INTO Protocols (CompID, Category, UserID, FIO, WinsLeft, WinsRight, LossesLeft, LossesRight, CreatedAt)
-                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`;
-            db.run(query, [r.compId, r.category, r.userId, r.fio, r.winsLeft, r.winsRight, r.lossesLeft, r.lossesRight], function(err) {
+            const query = `INSERT INTO Protocols (CompID, Category, UserID, FIO, Weight, Gender, WinsLeft, WinsRight, LossesLeft, LossesRight, CreatedAt)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`;
+            db.run(query, [r.compId, r.category, r.userId, r.fio, r.weight || 0, r.gender || 'Мужской', r.winsLeft, r.winsRight, r.lossesLeft, r.lossesRight], function(err) {
                 if (err) {
                     console.error('Ошибка вставки:', err.message);
                     errorCount++;
@@ -630,7 +630,28 @@ app.get('/api/get-protocol/:compId', (req, res) => {
         if (err) {
             res.status(500).json({ success: false, error: err.message });
         } else {
-            res.json({ success: true, results: rows });
+            // Подтягиваем вес и пол из Users если в протоколе 0/null
+            const userIds = rows.map(r => r.UserID);
+            if (userIds.length === 0) {
+                return res.json({ success: true, results: rows });
+            }
+            const placeholders = userIds.map(() => '?').join(',');
+            db.all(`SELECT UserID, Weight, Gender FROM Users WHERE UserID IN (${placeholders})`, userIds, (err, users) => {
+                if (err) {
+                    return res.json({ success: true, results: rows });
+                }
+                const userMap = {};
+                users.forEach(u => { userMap[u.UserID] = u; });
+                const enriched = rows.map(r => {
+                    const u = userMap[r.UserID];
+                    return {
+                        ...r,
+                        Weight: (r.Weight && r.Weight > 0) ? r.Weight : (u && u.Weight ? u.Weight : 0),
+                        Gender: r.Gender || (u && u.Gender ? u.Gender : 'Мужской')
+                    };
+                });
+                res.json({ success: true, results: enriched });
+            });
         }
     });
 });

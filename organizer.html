@@ -381,7 +381,7 @@ async function loadConfirmed() {
     const container = document.getElementById('finalGrid');
     if (Object.keys(groups).length === 0) { container.innerHTML = '<div class="loading">Нет участников</div>'; return; }
     container.innerHTML = Object.keys(groups).map(cat => `
-      <div class="category-card"><div class="category-title">📌 ${cat}</div><small>👥 ${groups[cat].length}</small><hr style="margin:10px 0; border-color:#333">${groups[cat].map(p => `<div class="participant-item">• ${p.FIO} (${p.Weight}кг) ${p.Gender === 'Женский' ? '👩' : '👨'}</div>`).join('')}</div>
+      <div class="category-card"><div class="category-title">📌 ${cat}</div><small>👥 ${groups[cat].length}</small><hr style="margin:10px 0; border-color:#333">${groups[cat].map(p => `<div class="participant-item">• ${p.FIO} (${p.Weight != null ? p.Weight + ' кг' : 'вес не указан'}) ${p.Gender === 'Женский' ? '👩' : '👨'}</div>`).join('')}</div>
     `).join('');
     tournamentFinalResults = {};
     sortedCategories.forEach(cat => { tournamentFinalResults[cat] = { Левая: [], Правая: [] }; });
@@ -407,7 +407,7 @@ async function loadPending() {
     for (let a of filtered) {
       const gender = a.Gender || determineGender(a.FIO);
       const autoCategory = autoAssignCategory(a.Weight, gender, allCategories);
-      html += `<tr style="border-bottom:1px solid #333;"><td style="padding:12px;"><strong>${a.FIO}</strong><br><small style="color:#888;">${a.Weight} кг, ${a.Rank || 'Б/Р'}</small></td>
+      html += `<tr style="border-bottom:1px solid #333;"><td style="padding:12px;"><strong>${a.FIO}</strong><br><small style="color:#888;">${a.Weight != null ? a.Weight + ' кг' : 'вес не указан'}, ${a.Rank || 'Б/Р'}</small></td>
         <td style="padding:12px;"><select id="cat-${a.AppID}" style="width:100%; padding:8px; background:#0F0F0F; border:1px solid #333; border-radius:6px;">${allCategories.map(c => `<option value="${c}" ${c === autoCategory ? 'selected' : ''}>${c}</option>`).join('')}</select>
         <div style="font-size:11px; color:#f59e0b; margin-top:5px;">🎯 Рекомендуемая: ${autoCategory}</div></td>
         <td style="padding:12px; text-align:center;"><button class="btn btn-success" style="padding:8px 16px;" onclick="approve(${a.AppID}, ${a.UserID})"> Подтвердить</button></td></tr>`;
@@ -606,7 +606,7 @@ function updateRankingDisplay() {
   if (!athletes.length) { document.getElementById('rankingContainer').innerHTML = '<div class="loading">Нет участников</div>'; return; }
   const wins = currentHandType === 'Левая' ? 'L_Wins' : 'R_Wins';
   const sorted = [...athletes].sort((a,b) => b[wins] - a[wins]);
-  document.getElementById('rankingContainer').innerHTML = `<table class="ranking-table"><thead><tr><th>Место</th><th>Участник</th><th>Вес</th><th>Победы</th><th>Поражения</th></tr></thead><tbody>${sorted.map((a,i) => `<tr class="${i===0?'rank-1':''}"><td>${i+1}</td><td>${a.FIO} ${a.Gender==='Женский'?'👩':'👨'}</td><td>${a.Weight}кг</td><td style="color:#4ade80;">${a[wins]}</td><td style="color:#ef4444;">${currentHandType==='Левая'?a.L_Loss:a.R_Loss}</td></tr>`).join('')}</tbody></table>`;
+  document.getElementById('rankingContainer').innerHTML = `<table class="ranking-table"><thead><tr><th>Место</th><th>Участник</th><th>Вес</th><th>Победы</th><th>Поражения</th></tr></thead><tbody>${sorted.map((a,i) => `<tr class="${i===0?'rank-1':''}"><td>${i+1}</td><td>${a.FIO} ${a.Gender==='Женский'?'👩':'👨'}</td><td>${a.Weight != null ? a.Weight + ' кг' : '—'}</td><td style="color:#4ade80;">${a[wins]}</td><td style="color:#ef4444;">${currentHandType==='Левая'?a.L_Loss:a.R_Loss}</td></tr>`).join('')}</tbody></table>`;
 }
 
 function loadCategoryForCurrentHand() {
@@ -634,8 +634,8 @@ function prepareMatch() {
   document.getElementById('handLabel').innerHTML = `🤼 ${currentHandType} рука | ${sortedCategories[currentCategoryIdx]}`;
   document.getElementById('f0Name').innerText = currentPair[0].FIO;
   document.getElementById('f1Name').innerText = currentPair[1].FIO;
-  document.getElementById('f0Losses').innerHTML = `📉 Поражений: ${currentHandType === 'Левая' ? currentPair[0].L_Loss : currentPair[0].R_Loss}/2`;
-  document.getElementById('f1Losses').innerHTML = `📉 Поражений: ${currentHandType === 'Левая' ? currentPair[1].L_Loss : currentPair[1].R_Loss}/2`;
+  document.getElementById('f0Losses').innerHTML = ` Поражений: ${currentHandType === 'Левая' ? currentPair[0].L_Loss : currentPair[0].R_Loss}/2`;
+  document.getElementById('f1Losses').innerHTML = ` Поражений: ${currentHandType === 'Левая' ? currentPair[1].L_Loss : currentPair[1].R_Loss}/2`;
   document.getElementById('fightBtn').style.display = 'inline-block';
   document.getElementById('nextMatchBtn').style.display = 'none';
 }
@@ -734,6 +734,8 @@ async function saveResultsToDatabase() {
                 category: athlete.Category,
                 userId: athlete.UserID,
                 fio: athlete.FIO,
+                weight: athlete.Weight || 0,
+                gender: athlete.Gender || 'Мужской',
                 winsLeft: athlete.WinsLeft,
                 winsRight: athlete.WinsRight,
                 lossesLeft: athlete.LossesLeft,
@@ -844,7 +846,7 @@ function showProtocolModal() {
                 html += `<tr>
                     <td>${medal}${idx + 1}</td>
                     <td><b>${a.FIO}</b> ${a.Gender === 'Женский' ? '👩' : '👨'}</td>
-                    <td>${a.Weight}кг</td>
+                    <td>${a.Weight != null ? a.Weight + ' кг' : '—'}</td>
                     <td style="color:#4ade80;">${a.L_Wins}</td>
                     <td style="color:#ef4444;">${a.L_Loss}</td>
                 </tr>`;
@@ -871,7 +873,7 @@ function showProtocolModal() {
                 html += `<tr>
                     <td>${medal}${idx + 1}</td>
                     <td><b>${a.FIO}</b> ${a.Gender === 'Женский' ? '👩' : '👨'}</td>
-                    <td>${a.Weight}кг</td>
+                    <td>${a.Weight != null ? a.Weight + ' кг' : '—'}</td>
                     <td style="color:#4ade80;">${a.R_Wins}</td>
                     <td style="color:#ef4444;">${a.R_Loss}</td>
                 </tr>`;
@@ -1015,7 +1017,7 @@ function downloadProtocolPDF() {
                 html += `<tr>
                     <td style="text-align:center">${idx + 1}</td>
                     <td>${a.FIO}</td>
-                    <td style="text-align:center">${a.Weight}</td>
+                    <td style="text-align:center">${a.Weight != null ? a.Weight : '—'}</td>
                     <td style="text-align:center">${a.L_Wins}</td>
                     <td style="text-align:center">${a.L_Loss}</td>
                 </tr>`;
@@ -1037,7 +1039,7 @@ function downloadProtocolPDF() {
                 html += `<tr>
                     <td style="text-align:center">${idx + 1}</td>
                     <td>${a.FIO}</td>
-                    <td style="text-align:center">${a.Weight}</td>
+                    <td style="text-align:center">${a.Weight != null ? a.Weight : '—'}</td>
                     <td style="text-align:center">${a.R_Wins}</td>
                     <td style="text-align:center">${a.R_Loss}</td>
                 </tr>`;
